@@ -1,12 +1,14 @@
 ### MyLib COMPILATION ###
 add_library(MyLib SHARED library.cpp)
 
+# properties
 set_target_properties(MyLib PROPERTIES
         VERSION ${PROJECT_VERSION}                             # version
         SOVERSION ${PROJECT_VERSION_MAJOR}                     # soversion (.so.x.y.z)
         PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/library.h  # Seperate APIs from private header
         POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})        # build PIC
 
+# include dir
 target_include_directories(MyLib PRIVATE
         ${PROJECT_SOURCE_DIR}/include)
 
