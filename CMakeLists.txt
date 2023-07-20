@@ -5,6 +5,8 @@ project(MyLib VERSION 0.1 DESCRIPTION "My library that uses Python, NumPy, OpenM
 
 option(BUILD_SHARED_LIBS "Building using shared libraries" ON)
 
+set(MPI_PATH "")
+
 ### COMPILATION ###
 
 add_subdirectory(src)                      # for library

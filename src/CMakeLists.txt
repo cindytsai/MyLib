@@ -10,7 +10,14 @@ set_target_properties(MyLib PROPERTIES
 
 # include dir
 target_include_directories(MyLib PRIVATE
-        ${PROJECT_SOURCE_DIR}/include)
+        ${PROJECT_SOURCE_DIR}/include
+        ${MPI_PATH}/include)
+
+# link lib
+target_link_directories(MyLib PRIVATE
+        ${MPI_PATH}/lib)
+target_link_libraries(MyLib PRIVATE mpi)
+
 
 ### MyLib INSTALLATION RULE ###
 include(GNUInstallDirs)
