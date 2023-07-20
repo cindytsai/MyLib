@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
     void hello();
+    void CheckPython();
 
 #ifdef __cplusplus
 };
