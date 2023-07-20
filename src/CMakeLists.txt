@@ -8,6 +8,20 @@ set_target_properties(MyLib PROPERTIES
         PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/library.h  # Seperate APIs from private header
         POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})        # build PIC
 
+# options
+function(print_option option_name)
+    if (${option_name})
+        message(STATUS "${option_name} is ON")
+    else ()
+        message(STATUS "${option_name} is OFF")
+    endif ()
+endfunction()
+
+print_option(SERIAL)
+print_option(INTERACTIVE_MODE)
+print_option(SUPPORT_TIMER)
+print_option(BUILD_SHARED_LIBS)
+
 # include dir
 target_include_directories(MyLib PRIVATE
         ${PROJECT_SOURCE_DIR}/include
