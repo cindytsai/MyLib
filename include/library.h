@@ -7,6 +7,7 @@ extern "C" {
 
     void hello();
     void CheckPython();
+#include "temp.h"
 
 #ifdef __cplusplus
 };

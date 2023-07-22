@@ -1,5 +1,5 @@
 #define PY_SSIZE_T_CLEAN
-#include <python3.9/Python.h>
+#include <Python.h>
 #include <mpi.h>
 #include <iostream>
 
@@ -23,4 +23,11 @@ void CheckPython() {
     if (Py_FinalizeEx() < 0)
         exit(120);
     PyMem_RawFree(program);
+}
+
+void ImportSubHeader() {
+    std::cout << "[ImportSubHeader]" << std::endl;
+#ifdef USE_BOO
+    std::cout << "[ImportSubHeader] USE_BOO" << std::endl;
+#endif
 }

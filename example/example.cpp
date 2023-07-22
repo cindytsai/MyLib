@@ -8,6 +8,7 @@ int main(int argc, char* argv[]) {
 
     hello();
     CheckPython();
+    ImportSubHeader();
 
     MPI_Finalize();
 
