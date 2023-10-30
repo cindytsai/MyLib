@@ -1,16 +1,15 @@
 #include "library.h"
-
 #include <mpi.h>
 
 int main(int argc, char* argv[]) {
+    Initialize(argc, argv);
 
-    MPI_Init(&argc, &argv);
-
-    hello();
     CheckPython();
-    ImportSubHeader();
+    People people;
+    people.age = 100;
+    people.name = "Cindytsai";
 
-    MPI_Finalize();
+    Finalize();
 
     return 0;
 }

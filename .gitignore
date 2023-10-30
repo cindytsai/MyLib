@@ -1,0 +1,12 @@
+
+build-debug/
+
+.idea/
+
+build/
+
+build-boo/
+
+build-use_boo/
+
+build-serial/
