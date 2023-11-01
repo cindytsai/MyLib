@@ -5,7 +5,22 @@
 #include "./Macro/LibraryDefinition.h"
 #include "library.h"
 
+/******************************************************************************
+ * \file library.cpp
+ * Source file of LibraryAPI.
+ *****************************************************************************/
 
+/******************************************************************************
+ * \brief A brief description of Initialize
+ *
+ * \note 1. This is note line 1.
+ *       2. This is note line 2.
+ *       3. This is note line 3.
+ *
+ * @param argc[in] Number of input arguments
+ * @param argv[in] Input arguments
+ * @return The job's state, either success or fail.
+ *****************************************************************************/
 int Initialize(int argc, char *argv[]) {
 #ifndef SERIAL_MODE
     MPICore::Initialize(argc, argv);
