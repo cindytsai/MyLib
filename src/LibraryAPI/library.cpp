@@ -24,7 +24,7 @@ int Finalize() {
 
 int PrintCXXVersion() {
     Logger logger(LOG_DEBUG);
-    logger.Info(&"C++ version: " [ __cplusplus]);
+    logger.Info("C++ version: %lld\n", __cplusplus);
     return LIBRARY_SUCCESS;
 }
 

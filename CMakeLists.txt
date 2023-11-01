@@ -13,7 +13,10 @@ option(BUILD_SHARED_LIBS "Building using shared libraries"    ON )  # MyLib is b
 # Set path
 set(READLINE_PATH  "")
 set(Python_ROOT_DIR "/home/cindytsai/Softwares/python/python3.9")
-set(MPI_HOME        "/home/cindytsai/Softwares/openmpi/4.1.4-gnu")
+
+if (NOT SERIAL_MODE)
+    set(MPI_HOME        "/home/cindytsai/Softwares/openmpi/4.1.4-gnu")
+endif ()
 
 ###### DEBUG Playground ################################################################################################
 file(GENERATE OUTPUT debug_genexpr CONTENT

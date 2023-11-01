@@ -4,6 +4,7 @@
 int main(int argc, char* argv[]) {
     Initialize(argc, argv);
 
+    PrintCXXVersion();
     CheckPython();
     People people;
     people.age = 100;
