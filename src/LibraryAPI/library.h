@@ -7,16 +7,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    int Initialize(int argc, char *argv[]);
-    int Finalize();
+int Initialize(int argc, char* argv[]);
+int Finalize();
 
-    int PrintCXXVersion();
-    int UseDataType(const struct People *people);
+int TempFunc();
+int PrintCXXVersion();
+int UseDataType(const struct People* people);
 
-    int CheckPython();
+int CheckPython();
 
 #ifdef __cplusplus
 };
 #endif
 
-#endif //MYLIB_LIBRARY_H
+#endif  // MYLIB_LIBRARY_H
