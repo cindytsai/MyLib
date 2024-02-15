@@ -20,6 +20,6 @@ target_compile_features(mylib_compiler_flags INTERFACE cxx_std_11)
 
 ###### Sub Dir ########################################################
 add_subdirectory(Python)
-add_subdirectory(Tools)
+add_subdirectory(Utilities)
 add_subdirectory(Comm)
 add_subdirectory(LibraryAPI)

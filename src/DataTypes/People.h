@@ -3,11 +3,11 @@
 
 typedef struct People {
     int age;
-    const char *name;
+    const char* name;
 #ifdef __cplusplus
     People() : age(0), name("Default Name") {}
     void Show() const;
 #endif
 } People;
 
-#endif //MYLIB_PEOPLE_H
+#endif  // MYLIB_PEOPLE_H

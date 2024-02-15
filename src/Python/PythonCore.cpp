@@ -1,11 +1,14 @@
 #define PY_SSIZE_T_CLEAN
 
-#include <iostream>
-#include <Python.h>
 #include "PythonCore.h"
+
+#include <Python.h>
+
+#include <iostream>
+
 #include "../Macro/LibraryDefinition.h"
 
-wchar_t * PythonCore::s_PythonProgram = NULL;
+wchar_t* PythonCore::s_PythonProgram = NULL;
 
 int PythonCore::Initialize() {
     s_PythonProgram = Py_DecodeLocale("PythonCore", NULL);
@@ -33,4 +36,3 @@ int PythonCore::CheckPython() {
 #endif
     return LIBRARY_SUCCESS;
 }
-
