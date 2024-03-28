@@ -13,7 +13,7 @@ int Finalize();
 int TempFunc();
 int PrintCXXVersion();
 int UseDataType(const struct People* people);
-
+int CheckDependency();
 int CheckPython();
 
 #ifdef __cplusplus

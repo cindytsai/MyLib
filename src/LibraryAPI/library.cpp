@@ -1,7 +1,7 @@
 #include <iostream>
 #include "./Comm/MPICore.h"
 #include "./Python/PythonCore.h"
-#include "./Tools/Logger.h"
+#include "./Utilities/Logger.h"
 #include "./Macro/LibraryDefinition.h"
 #include "library.h"
 
@@ -48,6 +48,15 @@ int UseDataType(const struct People *people) {
     logger.Info("People.age = %d\n", people->age);
     logger.Info("People.name = %s\n", people->name);
     return LIBRARY_SUCCESS;
+}
+
+int CheckDependency() {
+#ifdef NL_JSON
+    std::cout << "[json] using dependency" << std::endl;
+#else
+    std::cout << "[] no dependency" << std::endl;
+#endif
+    return 0;
 }
 
 int CheckPython() {

@@ -4,6 +4,10 @@ add_library(MyLib SHARED library.cpp)
 ###### Define, Include, Link ###########################################################################################
 target_include_directories(MyLib PRIVATE "..")
 target_link_libraries(MyLib PRIVATE MPICore PythonCore Logger)
+if (NL_JSON)
+    target_compile_definitions(MyLib PUBLIC NL_JSON)
+endif ()
+
 
 ###### Properties ######################################################################################################
 set(MyLib_PUBLIC_HEADER "library.h")

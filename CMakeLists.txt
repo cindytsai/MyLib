@@ -8,14 +8,15 @@ option(SERIAL_MODE       "Compile library for serial process" OFF)
 option(INTERACTIVE_MODE  "Use interactive mode"               ON )
 option(SUPPORT_TIMER     "Support timer"                      OFF)
 option(USE_BOO           "Use -DUSE_BOO"                      OFF)
+option(NL_JSON           "Use -DNL_JSON"                      OFF)
 option(BUILD_SHARED_LIBS "Building using shared libraries"    ON )  # MyLib is built into shared lib for now.
 
 # Set path
-set(READLINE_PATH  "")
-set(Python_ROOT_DIR "/home/cindytsai/Softwares/python/python3.9")
+set(READLINE_PATH   "" CACHE PATH "readline path")
+set(Python_ROOT_DIR "" CACHE PATH "path root dir")
 
 if (NOT SERIAL_MODE)
-    set(MPI_HOME        "/home/cindytsai/Softwares/openmpi/4.1.4-gnu")
+    set(MPI_HOME    "" CACHE PATH "mpi path")
 endif ()
 
 ###### DEBUG Playground ################################################################################################
