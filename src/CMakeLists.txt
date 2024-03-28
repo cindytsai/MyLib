@@ -14,9 +14,9 @@ print_option(BUILD_SHARED_LIBS)
 print_option(USE_BOO)
 
 ###### Compile Option ###################################################################################################
-# C++11
-add_library(mylib_compiler_flags INTERFACE)
-target_compile_features(mylib_compiler_flags INTERFACE cxx_std_11)
+# C++14
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ###### Sub Dir ########################################################
 add_subdirectory(Python)

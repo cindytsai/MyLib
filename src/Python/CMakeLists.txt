@@ -8,4 +8,3 @@ endif ()
 
 target_include_directories(PythonCore PUBLIC ${Python_INCLUDE_DIRS})
 target_link_libraries(PythonCore PUBLIC ${Python_LIBRARIES})
-target_link_libraries(PythonCore PUBLIC mylib_compiler_flags)

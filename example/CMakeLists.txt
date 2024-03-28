@@ -6,4 +6,4 @@ add_executable(example example.cpp)
 
 # link lib
 target_include_directories(example PUBLIC ../src/LibraryAPI)
-target_link_libraries(example PUBLIC MyLib MPI::MPI_CXX mylib_compiler_flags)
+target_link_libraries(example PUBLIC MyLib MPI::MPI_CXX)
