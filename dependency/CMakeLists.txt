@@ -47,5 +47,22 @@ if (NL_JSON)
         set(nlohmann_json_DIR "${JSON_PATH}" PARENT_SCOPE)
         message(STATUS "NL_JSON is ON, found nlohmann_json (nlohmann_json_DIR=\"${JSON_PATH}\")")
     endif ()
-endif ()
 
+    ## XTL ########################################################
+    find_package(xtl QUIET)
+
+    if (NOT xtl_FOUND)
+        message(STATUS "NL_JSON is ON, cannot find xtl (xtl_DIR=\"${xtl_DIR}\")")
+        set(FETCHCONTENT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/xtl")
+        FetchContent_Declare(
+            xtl
+            GIT_REPOSITORY "https://github.com/xtensor-stack/xtl.git"
+            GIT_TAG 0.7.7
+        )
+
+        FetchContent_MakeAvailable(xtl)
+        set(xtl_DIR "${CMAKE_CURRENT_SOURCE_DIR}/xtl/xtl-build" PARENT_SCOPE)
+    else ()
+        message(STATUS "NL_JSON is ON, found xtl (xtl_DIR=\"${xtl_DIR}\")")
+    endif ()
+endif ()

@@ -14,7 +14,7 @@ option(BUILD_SHARED_LIBS "Building using shared libraries"    ON )  # MyLib is b
 # Set path
 set(READLINE_PATH   "" CACHE PATH "readline path")
 set(Python_ROOT_DIR "" CACHE PATH "path root dir")
-set(JSON_PATH       "" CACHE PATH "nlohmann_json path")
+set(xtl_DIR         "" CACHE PATH "xtl path")
 
 if (NOT SERIAL_MODE)
     set(MPI_HOME    "" CACHE PATH "mpi path")
