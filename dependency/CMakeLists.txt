@@ -30,7 +30,7 @@ include(FetchContent)
 if (NL_JSON)
     ## JSON ########################################################
     # find package in dependency folder or user provided folder
-    find_package(nlohmann_json QUIET PATHS "${JSON_PATH}") # TODO: probably don't need to set this JSON_PATH
+    find_package(nlohmann_json 3.2 QUIET PATHS "${JSON_PATH}") # TODO: probably don't need to set this JSON_PATH
 
     if (NOT nlohmann_json_FOUND)
         message(STATUS "NL_JSON is ON, cannot find nlohmann_json (nlohmann_json_DIR=\"${JSON_PATH}\")")
@@ -49,7 +49,7 @@ if (NL_JSON)
     endif ()
 
     ## XTL ########################################################
-    find_package(xtl QUIET)
+    find_package(xtl 0.7 QUIET)
 
     if (NOT xtl_FOUND)
         message(STATUS "NL_JSON is ON, cannot find xtl (xtl_DIR=\"${xtl_DIR}\")")
