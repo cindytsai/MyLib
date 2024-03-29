@@ -14,6 +14,7 @@ option(BUILD_SHARED_LIBS "Building using shared libraries"    ON )  # MyLib is b
 # Set path
 set(READLINE_PATH   "" CACHE PATH "readline path")
 set(Python_ROOT_DIR "" CACHE PATH "path root dir")
+set(JSON_PATH       "" CACHE PATH "nlohmann_json path")
 
 if (NOT SERIAL_MODE)
     set(MPI_HOME    "" CACHE PATH "mpi path")
@@ -26,6 +27,7 @@ file(GENERATE OUTPUT debug_genexpr CONTENT
  $<$<STREQUAL:${READLINE_PATH},>:ReadlinePathSet>")
 
 ###### Directory #######################################################################################################
+add_subdirectory(dependency)               # download dependency
 add_subdirectory(src)                      # for library
 add_subdirectory(example)                  # for example exe
 

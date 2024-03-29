@@ -4,6 +4,7 @@
 #include "./Utilities/Logger.h"
 #include "./Macro/LibraryDefinition.h"
 #include "library.h"
+#include <nlohmann/json.hpp>
 
 /******************************************************************************
  * \file library.cpp
@@ -53,6 +54,8 @@ int UseDataType(const struct People *people) {
 int CheckDependency() {
 #ifdef NL_JSON
     std::cout << "[json] using dependency" << std::endl;
+    nlohmann::json j = nlohmann::json::array({1, 2, 3, 4});
+    std::cout << "j = " << j << std::endl;
 #else
     std::cout << "[] no dependency" << std::endl;
 #endif
