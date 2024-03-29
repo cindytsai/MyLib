@@ -28,11 +28,9 @@ include(FetchContent)
 #endif ()
 
 if (NL_JSON)
+    ## JSON ########################################################
     # find package in dependency folder or user provided folder
-    if ("${JSON_PATH}" STREQUAL "")
-        set(JSON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json/nlohmann_json-build")
-    endif ()
-    find_package(nlohmann_json QUIET PATHS "${JSON_PATH}")
+    find_package(nlohmann_json QUIET PATHS "${JSON_PATH}") # TODO: probably don't need to set this JSON_PATH
 
     if (NOT nlohmann_json_FOUND)
         message(STATUS "NL_JSON is ON, cannot find nlohmann_json (nlohmann_json_DIR=\"${JSON_PATH}\")")
