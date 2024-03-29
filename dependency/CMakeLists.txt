@@ -30,23 +30,22 @@ include(FetchContent)
 if (NL_JSON)
     ## JSON ########################################################
     # find package in dependency folder or user provided folder
-    find_package(nlohmann_json 3.2 QUIET PATHS "${JSON_PATH}") # TODO: probably don't need to set this JSON_PATH
-
-    if (NOT nlohmann_json_FOUND)
-        message(STATUS "NL_JSON is ON, cannot find nlohmann_json (nlohmann_json_DIR=\"${JSON_PATH}\")")
-        set(FETCHCONTENT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json")
-        FetchContent_Declare(
-            nlohmann_json
-            GIT_REPOSITORY "https://github.com/nlohmann/json.git"
-            GIT_TAG v3.11.3
-        )
-
-        FetchContent_MakeAvailable(nlohmann_json)
-        set(nlohmann_json_DIR "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json/nlohmann_json-build" PARENT_SCOPE)
-    else ()
-        set(nlohmann_json_DIR "${JSON_PATH}" PARENT_SCOPE)
-        message(STATUS "NL_JSON is ON, found nlohmann_json (nlohmann_json_DIR=\"${JSON_PATH}\")")
-    endif ()
+#    find_package(nlohmann_json 3.2 QUIET)
+#
+#    if (NOT nlohmann_json_FOUND)
+#        message(STATUS "NL_JSON is ON, cannot find nlohmann_json (nlohmann_json_DIR=\"${nlohmann_json_DIR}\")")
+#        set(FETCHCONTENT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json")
+#        FetchContent_Declare(
+#            nlohmann_json
+#            GIT_REPOSITORY "https://github.com/nlohmann/json.git"
+#            GIT_TAG v3.11.3
+#        )
+#
+#        FetchContent_MakeAvailable(nlohmann_json)
+#        set(nlohmann_json_DIR "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json/nlohmann_json-build" PARENT_SCOPE)
+#    else ()
+#        message(STATUS "NL_JSON is ON, found nlohmann_json (nlohmann_json_DIR=\"${nlohmann_json_DIR}\")")
+#    endif ()
 
     ## XTL ########################################################
     find_package(xtl 0.7 QUIET)
@@ -65,4 +64,29 @@ if (NL_JSON)
     else ()
         message(STATUS "NL_JSON is ON, found xtl (xtl_DIR=\"${xtl_DIR}\")")
     endif ()
+
+    ## XEUS ##########################################################
+#    find_package(xeus 3.0 QUIET)  # TODO: START HERE...
+#
+#    if (NOT xeus_FOUND)
+#        message(STATUS "NL_JSON is ON, cannot find xeus (xeus_DIR=\"${xeus_DIR}\")")
+#        set(FETCHCONTENT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/xeus")
+#        FetchContent_Declare(
+#            xeus
+#            GIT_REPOSITORY "https://github.com/jupyter-xeus/xeus.git"
+#            GIT_TAG 3.2.0
+#        )
+#
+#        FetchContent_GetProperties(xeus)
+#        if (NOT xeus_POPULATED)
+#            FetchContent_Populate(xeus)
+#            set(nlohmann_json_DIR "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann_json/nlohmann_json-build")
+#            add_subdirectory(${xeus_SOURCE_DIR} ${xeus_BINARY_DIR})
+#        endif ()
+#
+#        set(xeus_DIR "${CMAKE_CURRENT_SOURCE_DIR}/xeus/xeus-build" PARENT_SCOPE)
+#    else ()
+#        message(STATUS "NL_JSON is ON, found xeus (xeus_DIR=\"${xeus_DIR}\")")
+#    endif ()
+
 endif ()
