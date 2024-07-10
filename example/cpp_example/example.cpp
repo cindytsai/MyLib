@@ -1,4 +1,5 @@
 #include "library.h"
+
 #ifndef SERIAL_MODE
 #include <mpi.h>
 #endif
