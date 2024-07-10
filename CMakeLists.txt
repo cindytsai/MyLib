@@ -27,7 +27,7 @@ file(GENERATE OUTPUT debug_genexpr CONTENT
  $<$<STREQUAL:${READLINE_PATH},>:ReadlinePathSet>")
 
 ###### Directory #######################################################################################################
-add_subdirectory(dependency)               # download dependency
+add_subdirectory(vendor)                   # download dependency
 add_subdirectory(src)                      # for library
 add_subdirectory(example)                  # for example exe
 
