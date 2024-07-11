@@ -1,5 +1,8 @@
 # MyLib
-Work in progress...
+
+> Work in progress ...
+
+My C/C++ library skeleton for setting project and documents using CMake.
 
 ### TODO
 - [x] Modularize each part

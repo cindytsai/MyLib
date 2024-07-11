@@ -3,6 +3,10 @@ include(FetchContent)
 add_library(MyLib SHARED library.cpp)
 
 ###### Define, Include, Link ###########################################################################################
+if (USE_NLJSON)
+    target_compile_definitions(MyLib PUBLIC USE_NLJSON)
+    target_link_libraries(MyLib PRIVATE nlohmann_json::nlohmann_json)
+endif ()
 target_include_directories(MyLib PRIVATE "..")
 target_link_libraries(MyLib
         PRIVATE MPICore PythonCore Logger

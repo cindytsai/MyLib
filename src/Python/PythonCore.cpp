@@ -1,3 +1,5 @@
+#ifdef USE_PYTHON
+
 #define PY_SSIZE_T_CLEAN
 
 #include "PythonCore.h"
@@ -8,7 +10,7 @@
 
 #include "../Macro/LibraryDefinition.h"
 
-wchar_t* PythonCore::s_PythonProgram = NULL;
+wchar_t *PythonCore::s_PythonProgram = NULL;
 
 int PythonCore::Initialize() {
     s_PythonProgram = Py_DecodeLocale("PythonCore", NULL);
@@ -31,8 +33,12 @@ int PythonCore::Finalize() {
 
 int PythonCore::CheckPython() {
     PyRun_SimpleString("print('[python] hello world')\n");
+    std::cout << "[python] python version" << PY_MAJOR_VERSION << "." << PY_MINOR_VERSION << "." << PY_MICRO_VERSION
+              << std::endl;
 #ifdef USE_BOO
-    std::cout << "USE_BOO" << std::endl;
+    std::cout << "[python] USE_BOO = USE_BOO" << std::endl;
 #endif
     return LIBRARY_SUCCESS;
 }
+
+#endif

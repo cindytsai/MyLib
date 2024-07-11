@@ -73,5 +73,10 @@ int CheckDependencies() {
 #else
     std::cout << "[] no python" << std::endl;
 #endif
+#ifdef USE_BOO
+    std::cout << "[] USE_BOO = USE_BOO" << std::endl;
+#else
+    std::cout << "[] USE_BOO = (empty)" << std::endl;
+#endif
     return 0;
 }

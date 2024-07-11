@@ -1,12 +1,17 @@
-
-build-debug/
-
 .idea/
 
 build/
 
-build-boo/
-
 build-use_boo/
 
-build-serial/
+docs/_build/
+
+build-use-nljson/
+
+build-py310/
+
+build-readline/
+
+build-use-mpi/
+
+vendor/nlohmann_json/

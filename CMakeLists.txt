@@ -26,7 +26,6 @@ file(GENERATE OUTPUT debug_genexpr CONTENT
 ###### Mapping paths and dependencies ##################################################################################
 if (USE_MPI)
     set(MPI_HOME ${MPI_PATH})
-    find_package(MPI REQUIRED)
 endif ()
 
 if (USE_PYTHON)
