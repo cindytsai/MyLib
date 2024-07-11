@@ -1,4 +1,4 @@
-#ifndef SERIAL_MODE
+#ifdef USE_MPI
 
 #include "../Macro/LibraryDefinition.h"
 #include "MPICore.h"

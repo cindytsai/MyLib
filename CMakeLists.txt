@@ -31,7 +31,6 @@ endif ()
 
 if (USE_PYTHON)
     set(Python_ROOT_DIR ${PYTHON_PATH})
-    find_package(Python 3.7 COMPONENTS Development NumPy REQUIRED)
 endif ()
 
 if (USE_NLJSON)

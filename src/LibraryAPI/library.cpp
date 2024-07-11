@@ -4,7 +4,9 @@
 #include "./Utilities/Logger.h"
 #include "./Macro/LibraryDefinition.h"
 #include "library.h"
+#ifdef USE_NLJSON
 #include <nlohmann/json.hpp>
+#endif
 
 /******************************************************************************
  * \file library.cpp
@@ -23,18 +25,24 @@
  * @return The job's state, either success or fail.
  *****************************************************************************/
 int Initialize(int argc, char *argv[]) {
-#ifndef SERIAL_MODE
+#ifdef USE_MPI
     MPICore::Initialize(argc, argv);
 #endif
+
+#ifdef USE_PYTHON
     PythonCore::Initialize();
+#endif
     return LIBRARY_SUCCESS;
 }
 
 int Finalize() {
-#ifndef SERIAL_MODE
+#ifdef USE_MPIE
     MPICore::Finalize();
 #endif
+
+#ifdef USE_PYTHON
     PythonCore::Finalize();
+#endif
     return LIBRARY_SUCCESS;
 }
 
@@ -51,19 +59,19 @@ int UseDataType(const struct People *people) {
     return LIBRARY_SUCCESS;
 }
 
-int CheckDependency() {
-#ifdef NL_JSON
+int CheckDependencies() {
+#ifdef USE_NLJSON
     std::cout << "[json] using dependency" << std::endl;
     nlohmann::json j = nlohmann::json::array({1, 2, 3, 4});
     std::cout << "j = " << j << std::endl;
 #else
-    std::cout << "[] no dependency" << std::endl;
+    std::cout << "[] no nljson" << std::endl;
 #endif
-    return 0;
-}
-
-int CheckPython() {
+#ifdef USE_PYTHON
     PythonCore python_core;
     python_core.CheckPython();
-    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no python" << std::endl;
+#endif
+    return 0;
 }

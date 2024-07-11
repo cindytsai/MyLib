@@ -7,12 +7,12 @@ function(print_option option_name)
     endif ()
 endfunction()
 
-print_option(SERIAL_MODE)
-print_option(INTERACTIVE_MODE)
-print_option(SUPPORT_TIMER)
-print_option(BUILD_SHARED_LIBS)
 print_option(USE_BOO)
-print_option(NL_JSON)
+print_option(USE_PYTHON)
+print_option(USE_MPI)
+print_option(USE_READLINE)
+print_option(USE_NLJSON)
+print_option(BUILD_SHARED_LIBS)
 
 ###### Compile Option ###################################################################################################
 # C++14

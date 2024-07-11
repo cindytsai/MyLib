@@ -1,7 +1,7 @@
 #ifndef MYLIB_MPICORE_H
 #define MYLIB_MPICORE_H
 
-#ifndef SERIAL_MODE
+#ifdef USE_MPI
 class MPICore {
 private:
     static int m_Process;

@@ -1,5 +1,5 @@
 ### Example ###
-if (NOT SERIAL_MODE)
+if (USE_MPI)
     find_package(MPI REQUIRED)
 endif ()
 
@@ -8,10 +8,8 @@ endif ()
 add_executable(example example.cpp)
 
 # link lib
-target_include_directories(example PUBLIC ../src/LibraryAPI)
+target_include_directories(example PUBLIC ../../src/LibraryAPI)
 target_link_libraries(example PUBLIC MyLib)
-if (NOT SERIAL_MODE)
+if (USE_MPI)
     target_link_libraries(example PUBLIC MPI::MPI_CXX)
-else ()
-    target_compile_definitions(example PUBLIC SERIAL_MODE)
 endif ()
