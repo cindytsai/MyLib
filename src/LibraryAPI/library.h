@@ -1,8 +1,8 @@
 #ifndef MYLIB_LIBRARY_H
 #define MYLIB_LIBRARY_H
 
-#include "../DataTypes/People.h"
-#include "../Macro/LibraryDefinition.h"
+#include "DataTypes/People.h"
+#include "Macro/LibraryDefinition.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -14,3 +14,8 @@ if (USE_PYTHON)
     target_include_directories(PythonCore PUBLIC ${Python_INCLUDE_DIRS})
     target_link_libraries(PythonCore PUBLIC ${Python_LIBRARIES})
 endif ()
+
+## Install ######################3
+if (USE_PYTHON)
+    install(TARGETS PythonCore DESTINATION lib)
+endif ()
