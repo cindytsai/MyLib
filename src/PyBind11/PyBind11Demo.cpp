@@ -15,10 +15,11 @@ int PyBind11Finalize() {
     return 0;
 }
 
-int CallPyBind11Demo() {
+int PyBind11CallTestScript() {
     std::cout << "====================" << std::endl;
-    pybind11::exec("import sys; sys.path.insert(0, '.'); print(sys.path)");
-    pybind11::exec("import test_script; test_func()");
+    pybind11::exec("import sys; sys.path.insert(0, '.'); help('modules')");
+    pybind11::exec("import test_script; test_script.test_func()");
+    pybind11::exec("print(dir())");
     std::cout << "====================" << std::endl;
     return 0;
 }

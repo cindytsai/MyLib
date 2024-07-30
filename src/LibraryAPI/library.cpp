@@ -67,7 +67,7 @@ int UseDataType(const struct People *people) {
 
 int PyBind11Demo() {
 #ifdef USE_PYBIND11
-    CallPyBind11Demo();
+    PyBind11CallTestScript();
 #endif
     return LIBRARY_SUCCESS;
 }

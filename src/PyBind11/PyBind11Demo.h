@@ -4,7 +4,7 @@
 #ifdef USE_PYBIND11
 int PyBind11Initialize();
 int PyBind11Finalize();
-int CallPyBind11Demo();
+int PyBind11CallTestScript();
 #endif
 
 #endif  // MYLIB_PYBINDDEMO_H
