@@ -29,9 +29,11 @@ int Initialize(int argc, char *argv[]) {
 #ifdef USE_MPI
     MPICore::Initialize(argc, argv);
 #endif
-
 #ifdef USE_PYTHON
     PythonCore::Initialize();
+#endif
+#ifdef USE_PYBIND11
+    PyBind11Initialize();
 #endif
     return LIBRARY_SUCCESS;
 }
@@ -40,10 +42,13 @@ int Finalize() {
 #ifdef USE_MPIE
     MPICore::Finalize();
 #endif
-
 #ifdef USE_PYTHON
     PythonCore::Finalize();
 #endif
+#ifdef USE_PYBIND11
+    PyBind11Finalize();
+#endif
+
     return LIBRARY_SUCCESS;
 }
 
