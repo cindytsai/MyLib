@@ -3,7 +3,7 @@ if (USE_PYTHON)
     message(STATUS "Found Python = \"${PYTHON_PATH}\"")
 endif ()
 
-add_library(PythonCore SHARED PythonCore.cpp)
+add_library(PythonCore PythonCore.cpp)
 
 if (USE_PYTHON)
     if (USE_BOO)

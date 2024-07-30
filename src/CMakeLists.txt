@@ -12,6 +12,7 @@ print_option(USE_PYTHON)
 print_option(USE_MPI)
 print_option(USE_READLINE)
 print_option(USE_NLJSON)
+print_option(USE_PYBIND11)
 print_option(BUILD_SHARED_LIBS)
 
 ###### Compile Option ###################################################################################################
@@ -24,3 +25,4 @@ add_subdirectory(Python)
 add_subdirectory(Utilities)
 add_subdirectory(Comm)
 add_subdirectory(LibraryAPI)
+add_subdirectory(PyBind11)

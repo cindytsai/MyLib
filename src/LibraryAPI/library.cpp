@@ -3,6 +3,7 @@
 #include "./Python/PythonCore.h"
 #include "./Utilities/Logger.h"
 #include "./Macro/LibraryDefinition.h"
+#include "./PyBind11/PyBind11Demo.h"
 #include "library.h"
 #ifdef USE_NLJSON
 #include <nlohmann/json.hpp>
@@ -59,6 +60,13 @@ int UseDataType(const struct People *people) {
     return LIBRARY_SUCCESS;
 }
 
+int PyBind11Demo() {
+#ifdef USE_PYBIND11
+    CallPyBind11Demo();
+#endif
+    return LIBRARY_SUCCESS;
+}
+
 int CheckDependencies() {
 #ifdef USE_NLJSON
     std::cout << "[json] using dependency" << std::endl;
@@ -77,6 +85,11 @@ int CheckDependencies() {
     std::cout << "[] USE_BOO = USE_BOO" << std::endl;
 #else
     std::cout << "[] USE_BOO = (empty)" << std::endl;
+#endif
+#ifdef USE_PYBIND11
+    std::cout << "[pybind11] using dependency" << std::endl;
+#else
+    std::cout << "[] no pybind11" << std::endl;
 #endif
     return 0;
 }

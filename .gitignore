@@ -15,3 +15,5 @@ build-readline/
 build-use-mpi/
 
 vendor/nlohmann_json/
+
+build-pybind11/

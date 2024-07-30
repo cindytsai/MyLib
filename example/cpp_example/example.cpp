@@ -6,11 +6,11 @@ int main(int argc, char* argv[]) {
 
     PrintCXXVersion();
     CheckDependencies();
+    PyBind11Demo();
 
     People people;
     people.age = 100;
     people.name = "Cindytsai";
-
 
     Finalize();
 

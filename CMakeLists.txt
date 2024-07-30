@@ -9,12 +9,14 @@ option(USE_PYTHON        "Use Python >= 3.7"                  OFF)
 option(USE_MPI           "Use MPI"                            OFF)
 option(USE_READLINE      "Use readline"                       OFF)
 option(USE_NLJSON        "Use nlohmann_json"                  OFF)
+option(USE_PYBIND11      "Use pybind11"                       OFF)
 option(BUILD_SHARED_LIBS "Building using shared libraries"    ON )  # MyLib is built into shared lib for now.
 
 # Set path
 set(PYTHON_PATH        "" CACHE PATH "Path to Python installation prefix (-DUSE_PYTHON=ON)")
 set(MPI_PATH           "" CACHE PATH "Path to MPI installation prefix (-DUSE_MPI=ON)")
 set(READLINE_PATH      "" CACHE PATH "Path to Readline installation prefix (-DUSE_READLINE=ON)")
+set(PYBIND11_PATH      "" CACHE PATH "Path to pybind11Config.cmake (-DUSE_PYBIND11=ON)")
 set(NLJSON_PATH        "" CACHE PATH "Path to nlohmann_json prefix (-DUSE_NLJSON=ON)")
 
 ###### DEBUG Playground ################################################################################################
@@ -34,6 +36,10 @@ endif ()
 
 if (USE_NLJSON)
     set(nlohmann_json_DIR ${NLJSON_PATH})
+endif ()
+
+if (USE_PYBIND11)
+    set(pybind11_DIR ${PYBIND11_PATH})
 endif ()
 
 ###### Compilation ####################################################################################################

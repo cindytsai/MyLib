@@ -10,6 +10,8 @@ extern "C" {
 int Initialize(int argc, char* argv[]);
 int Finalize();
 
+int PyBind11Demo();
+
 int TempFunc();
 int PrintCXXVersion();
 int UseDataType(const struct People* people);
