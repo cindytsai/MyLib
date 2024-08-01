@@ -12,8 +12,8 @@ int PyBind11Initialize(const char *inline_script) {
     std::cout << "[PyBind11Initialize] Using Python " << std::endl;
     pybind11::exec("import sys; print(sys.version)");
     pybind11::exec("import " + std::string(inline_script));
-    pybind11::exec("import pybind11_libyt");
-    std::cout << "[PyBind11Initialize] import " << inline_script << " and pybind11_libyt" << std::endl;
+    pybind11::exec("import libyt");
+    std::cout << "[PyBind11Initialize] import " << inline_script << " and libyt" << std::endl;
     return 0;
 }
 
@@ -22,11 +22,13 @@ int PyBind11Finalize() {
     return 0;
 }
 
-PYBIND11_EMBEDDED_MODULE(pybind11_libyt, m) { // TODO: remember to change to pybind11_libyt
+PYBIND11_EMBEDDED_MODULE(libyt, m) { // TODO: remember to change to libyt
     using namespace pybind11::literals; // to bring in the `_a` literal
     m.attr("demo") = pybind11::dict("spam"_a = pybind11::none());
     m.attr("param_yt") = pybind11::dict();
     m.attr("param_user") = pybind11::dict();
+    m.attr("libyt_info") = pybind11::dict("version"_a = "0.0.1");
+
     m.def("add", [](int i, int j) {
         return i + j;
     });
@@ -37,12 +39,12 @@ PYBIND11_EMBEDDED_MODULE(pybind11_libyt, m) { // TODO: remember to change to pyb
 int PyBind11SetUserParameterInt(const char *key, int value) {
     std::cout << "[PyBind11] Setting user parameter" << std::endl;
 
-    auto pybind11_libyt = pybind11::module_::import("pybind11_libyt");
+    auto pybind11_libyt = pybind11::module_::import("libyt");
     pybind11::dict param_user = pybind11_libyt.attr("param_user");
 
     param_user[key] = value;
 
-    pybind11::exec("import pprint; pprint.pprint(pybind11_libyt.param_user)");
+    pybind11::exec("import pprint; pprint.pprint(libyt.param_user)");
 
     return 0;
 }
@@ -50,7 +52,7 @@ int PyBind11SetUserParameterInt(const char *key, int value) {
 int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
     std::cout << "[PyBind11] Setting parameter" << std::endl;
 
-    auto pybind11_libyt = pybind11::module_::import("pybind11_libyt");
+    auto pybind11_libyt = pybind11::module_::import("libyt");
     pybind11::dict param_yt = pybind11_libyt.attr("param_yt");
 
     param_yt["frontend"] = yt_param_ptr->frontend; // string
@@ -72,6 +74,7 @@ int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
     param_yt["hubble_constant"] = yt_param_ptr->hubble_constant; // double
     param_yt["num_grids_local"] = yt_param_ptr->num_grids_local; // int
     param_yt["num_fields"] = yt_param_ptr->num_fields; // int
+    param_yt["index_offset"] = yt_param_ptr->index_offset; // int
 
     param_yt["domain_dimensions"] = pybind11::make_tuple(yt_param_ptr->domain_dimensions[0],
                                                          yt_param_ptr->domain_dimensions[1],
@@ -86,7 +89,7 @@ int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
                                                    yt_param_ptr->periodicity[1],
                                                    yt_param_ptr->periodicity[2]);
 
-    pybind11::exec("import pprint; pprint.pprint(pybind11_libyt.param_yt)");
+    pybind11::exec("import pprint; pprint.pprint(libyt.param_yt)");
 
     return 0;
 }
@@ -94,7 +97,7 @@ int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
 int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
     std::cout << "[PyBind11] Setting fields " << std::endl;
 
-    auto pybind11_libyt = pybind11::module_::import("pybind11_libyt");
+    auto pybind11_libyt = pybind11::module_::import("libyt");
     pybind11::dict param_yt = pybind11_libyt.attr("param_yt");
 
     pybind11::dict field_list = pybind11::dict();
@@ -115,7 +118,7 @@ int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
         field_list[yt_field_ptr[i].field_name]["contiguous_in_x"] = pybind11::bool_(yt_field_ptr[i].contiguous_in_x);
     }
 
-    pybind11::exec("import pprint; pprint.pprint(pybind11_libyt.param_yt)");
+    pybind11::exec("import pprint; pprint.pprint(libyt.param_yt)");
 
     return 0;
 }
