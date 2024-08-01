@@ -7,6 +7,7 @@ add_library(PyBind11 PyBind11Demo.cpp)
 
 if (USE_PYBIND11)
     target_compile_definitions(PyBind11 PUBLIC USE_PYBIND11)
+    target_include_directories(PyBind11 PUBLIC ${PROJECT_SOURCE_DIR}/src)
     target_link_libraries(PyBind11 PUBLIC pybind11::embed)
     configure_file(test_script.py ${PROJECT_BINARY_DIR}/example/cpp_example/test_script.py COPYONLY)
 endif ()
