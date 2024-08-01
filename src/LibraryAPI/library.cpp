@@ -62,6 +62,35 @@ int PyBind11_SetParameters(struct yt_param_yt *yt_param_ptr) {
 #endif
 }
 
+int PyBind11_SetUserParameterInt(const char *key, int value) {
+#ifdef USE_PYBIND11
+    PyBind11SetUserParameterInt(key, value);
+    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
+}
+
+int PyBind11_SetFields(struct yt_field *yt_field_ptr, int len) {
+#ifdef USE_PYBIND11
+    PyBind11SetFields(yt_field_ptr, len);
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
+}
+
+int PyBind11_Run(const char *inline_script, const char *function) {
+#ifdef USE_PYBIND11
+    PyBind11Run(inline_script, function);
+    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
+}
+
 int PrintCXXVersion() {
     Logger logger(LOG_DEBUG);
     logger.Info("C++ version: %lld\n", __cplusplus);

@@ -4,6 +4,7 @@ Consider only cell-centered field and ignore particle data and derived data.
 */
 
 #include "library.h"
+#include "DataTypes/YTField.h"
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -67,7 +68,7 @@ int main (int argc, char *argv[]){
     hier.close();
 
     /* Generate data set for testing */
-    if (Initialize(argc, argv, "inline") != LIBRARY_SUCCESS ) {
+    if (Initialize(argc, argv, "inline_script") != LIBRARY_SUCCESS ) {
         printf("yt_initialize failed!\n");
     }
 
@@ -123,54 +124,27 @@ int main (int argc, char *argv[]){
         PyBind11_SetParameters( &param_yt );
 
         /* libyt API yt_set_UserParameter */
-//        const int mhd = 0;
-//        yt_set_UserParameterInt("mhd", 1, &mhd);
-//        const int srhd = 0;
-//        yt_set_UserParameterInt("srhd", 1, &srhd);
-//
-//        /* libyt API yt_get_FieldsPtr */
-//        yt_field *field_list;
-//        yt_get_FieldsPtr( &field_list );
-//
-//        // set derived field
-//        field_list[0].field_name = "DerivedOnes";
-//        field_list[0].field_type = "derived_func";
-//        field_list[0].contiguous_in_x = true;
-//        field_list[0].field_dtype = YT_DOUBLE;
-//        const char *field_name_alias[] = {"Name Alias 1", "Name Alias 2", "Name Alias 3"};
-//        field_list[0].field_name_alias = field_name_alias;
-//        field_list[0].num_field_name_alias = 3;
+        PyBind11_SetUserParameterInt("mhd", 0);
+        PyBind11_SetUserParameterInt("srhd", 0);
+
+        /* libyt API yt_get_FieldsPtr */
+        struct yt_field *field_list = new struct yt_field[param_yt.num_fields];
+
+        // set derived field
+        field_list[0].field_name = "DerivedOnes";
+        field_list[0].field_type = "derived_func";
+        field_list[0].contiguous_in_x = true;
+        const char *field_name_alias[] = {"Name Alias 1", "Name Alias 2", "Name Alias 3"};
+        field_list[0].field_name_alias = field_name_alias;
+        field_list[0].num_field_name_alias = 3;
 //        field_list[0].derived_func = DerivedFunc;
-//
-//        // set cell-centered field
-//        field_list[1].field_name = "CCTwos";
-//        field_list[1].field_type = "cell-centered";
-//        field_list[1].contiguous_in_x = true;
-//        field_list[1].field_dtype = YT_DOUBLE;
-//
-//        /* libyt API yt_get_ParticlesPtr */
-//        yt_particle *particle_list;
-//        yt_get_ParticlesPtr( &particle_list );
-//
-//        const char *attr_name[] = {"ParPosX", "ParPosY", "ParPosZ", "Level"};
-//        const char *attr_name_alias[] = {"grid_level"};
-//        for (int v=0; v < 4; v++) {
-//            particle_list[0].attr_list[v].attr_name = attr_name[v];
-//            if (v == 3) {
-//                particle_list[0].attr_list[v].attr_dtype = YT_INT;
-//                particle_list[0].attr_list[v].num_attr_name_alias = 1;
-//                particle_list[0].attr_list[v].attr_name_alias     = attr_name_alias;
-//                particle_list[0].attr_list[v].attr_display_name   = "Level of the Grid";
-//            }
-//            else {
-//                particle_list[0].attr_list[v].attr_dtype = YT_DOUBLE;
-//            }
-//        }
-//        particle_list[0].coor_x = attr_name[0];
-//        particle_list[0].coor_y = attr_name[1];
-//        particle_list[0].coor_z = attr_name[2];
-//        particle_list[0].get_par_attr = GetParticleAttr;
-//
+
+        // set cell-centered field
+        field_list[1].field_name = "CCTwos";
+        field_list[1].field_type = "cell-centered";
+        field_list[1].contiguous_in_x = true;
+        PyBind11_SetFields(field_list, param_yt.num_fields);
+
 //        yt_grid *grids_local;
 //        yt_get_GridsPtr( &grids_local );
 //
@@ -209,7 +183,9 @@ int main (int argc, char *argv[]){
 //
 //        yt_commit();
 //
-//        yt_run_Function("yt_inline");
+
+        PyBind11_Run("inline_script", "test_function");
+
 //
 //        yt_free();
 //
