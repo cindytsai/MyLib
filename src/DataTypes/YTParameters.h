@@ -27,7 +27,6 @@ struct yt_param_yt {
     int index_offset;
     long num_grids;
     int num_fields;
-    int num_par_types;
     int num_grids_local;
 
 #ifdef __cplusplus
@@ -68,7 +67,6 @@ struct yt_param_yt {
         num_grids = LONG_MIN;
 
         num_fields = 0;
-        num_par_types = 0;
         num_grids_local = 0;
     }
 #endif  // #ifdef __cplusplus

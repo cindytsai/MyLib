@@ -103,7 +103,6 @@ int main (int argc, char *argv[]){
 
     // for fields and particles
     param_yt.num_fields              = 2;         // cell-centered and derived
-    param_yt.num_par_types           = 1;         // io
 
     // generating field (twos field in cell-centered) and particle data (position x/y/z)
     // for testing data wrapping in libyt
