@@ -25,7 +25,7 @@
  * @param argv[in] Input arguments
  * @return The job's state, either success or fail.
  *****************************************************************************/
-int Initialize(int argc, char *argv[]) {
+int Initialize(int argc, char *argv[], const char *inline_script) {
 #ifdef USE_MPI
     MPICore::Initialize(argc, argv);
 #endif
@@ -33,7 +33,7 @@ int Initialize(int argc, char *argv[]) {
     PythonCore::Initialize();
 #endif
 #ifdef USE_PYBIND11
-    PyBind11Initialize();
+    PyBind11Initialize(inline_script);
 #endif
     return LIBRARY_SUCCESS;
 }
@@ -50,6 +50,16 @@ int Finalize() {
 #endif
 
     return LIBRARY_SUCCESS;
+}
+
+int PyBind11_SetParameters(struct yt_param_yt *yt_param_ptr) {
+#ifdef USE_PYBIND11
+    PyBind11SetParameters(yt_param_ptr);
+    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
 }
 
 int PrintCXXVersion() {

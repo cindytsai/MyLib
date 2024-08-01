@@ -2,15 +2,18 @@
 #define MYLIB_LIBRARY_H
 
 #include "DataTypes/People.h"
+#include "DataTypes/YTParameters.h"
 #include "Macro/LibraryDefinition.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-int Initialize(int argc, char* argv[]);
+int Initialize(int argc, char* argv[], const char* inline_script);
 int Finalize();
 
 int PyBind11Demo();
+int PyBind11_SetParameters(struct yt_param_yt* yt_param_ptr);
+int PyBind11_SetUserParameterInt(const char* key, int value);
 
 int TempFunc();
 int PrintCXXVersion();

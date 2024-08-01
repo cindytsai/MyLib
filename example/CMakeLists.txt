@@ -1,2 +1,3 @@
+add_subdirectory(gamer)
 add_subdirectory(cpp_example)
 add_subdirectory(fortran_example)

@@ -2,7 +2,7 @@
 
 
 int main(int argc, char* argv[]) {
-    Initialize(argc, argv);
+    Initialize(argc, argv, nullptr);
 
     PrintCXXVersion();
     CheckDependencies();
