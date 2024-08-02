@@ -2,6 +2,7 @@
 
 #include "DataTypes/YTParameters.h"
 #include "DataTypes/YTField.h"
+#include "DataTypes/YTGrid.h"
 #include "pybind11/embed.h"
 #include <iostream>
 
@@ -11,9 +12,10 @@ int PyBind11Initialize(const char *inline_script) {
     pybind11::initialize_interpreter();
     std::cout << "[PyBind11Initialize] Using Python " << std::endl;
     pybind11::exec("import sys; print(sys.version)");
-    pybind11::exec("import " + std::string(inline_script));
-    pybind11::exec("import libyt");
-    std::cout << "[PyBind11Initialize] import " << inline_script << " and libyt" << std::endl;
+    // TODO: remember to uncomment it.
+//    pybind11::exec("import " + std::string(inline_script));
+//    pybind11::exec("import libyt");
+//    std::cout << "[PyBind11Initialize] import " << inline_script << " and libyt" << std::endl;
     return 0;
 }
 
@@ -131,6 +133,20 @@ int PyBind11Run(const char *inline_script, const char *function) {
     return 0;
 }
 
+PYBIND11_EMBEDDED_MODULE(pybind11_libyt, m) {
+    using namespace pybind11::literals; // to bring in the `_a` literal
+    m.attr("demo") = pybind11::dict("spam"_a = pybind11::none());
+    m.attr("param_yt") = pybind11::dict();
+    m.attr("param_user") = pybind11::dict();
+    m.attr("libyt_info") = pybind11::dict("version"_a = "0.0.1");
+
+    m.def("add", [](int i, int j) {
+        return i + j;
+    });
+    m.def("derived_func", []() {
+    });
+}
+
 int PyBind11CallTestScript() {
     /*
      * Call in example.cpp only, not in gamer mock
@@ -146,7 +162,39 @@ int PyBind11CallTestScript() {
     pybind11::exec("print(pybind11_libyt.demo)");
     pybind11::dict demo = pybind11_libyt.attr("demo");
     demo["spam"] = 1;
-    pybind11::exec("print(pybind11_libyt.demo)");
+
+    const uint8_t buffer[] = {
+            0, 1, 2, 3,
+            4, 5, 6, 7
+    };
+//    demo["array"] = pybind11::memoryview::from_buffer(
+//            buffer,                                    // buffer pointer
+//            { 2, 4 },                                  // shape (rows, cols)
+//            { sizeof(uint8_t) * 4, sizeof(uint8_t) }   // strides in bytes
+//    );
+    demo["array"] = pybind11::memoryview::from_buffer(
+            buffer,                                    // buffer pointer
+            { 8 },                                     // shape
+            { sizeof(uint8_t) }                        // strides in bytes
+    );
+
+    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array']))");
+
+    int *array = new int [10];
+    for (int i = 0; i < 10; i++) {
+        array[i] = i;
+    }
+//    demo["array_int"] = pybind11::memoryview::from_memory(array, sizeof(uint32_t) * 10); // doesn't work
+    demo["array_int"] = pybind11::memoryview::from_buffer(
+            array,                                    // buffer pointer
+            { 10 },                                   // shape
+            { sizeof(int) }                           // strides in bytes
+    );
+
+    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array_int']))");
+
+    delete[] array;
+
     pybind11::object result = pybind11_libyt.attr("add")(1, 2);
     std::cout << "call pybind11_libyt.add(1,2) = " << result.cast<int>() << std::endl;
 
