@@ -22,7 +22,7 @@ int PyBind11Finalize() {
     return 0;
 }
 
-PYBIND11_EMBEDDED_MODULE(libyt, m) { // TODO: remember to change to libyt
+PYBIND11_EMBEDDED_MODULE(libyt, m) {
     using namespace pybind11::literals; // to bring in the `_a` literal
     m.attr("demo") = pybind11::dict("spam"_a = pybind11::none());
     m.attr("param_yt") = pybind11::dict();
@@ -133,7 +133,7 @@ int PyBind11Run(const char *inline_script, const char *function) {
 
 int PyBind11CallTestScript() {
     /*
-     * Call in example.cpp only
+     * Call in example.cpp only, not in gamer mock
      */
     std::cout << "====================" << std::endl;
     auto pybind11_libyt = pybind11::module_::import("pybind11_libyt");

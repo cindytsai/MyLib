@@ -1,5 +1,5 @@
 if (USE_PYBIND11)
-    find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+    find_package(Python COMPONENTS Interpreter Development REQUIRED)
     find_package(pybind11 REQUIRED)
     message(STATUS "Found PyBind11 = \"${pybind11_INCLUDE_DIRS}\"")
 endif()
