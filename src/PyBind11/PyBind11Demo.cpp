@@ -8,14 +8,17 @@
 
 #include "PyBind11Demo.h"
 
-int PyBind11Initialize(const char *inline_script) {
+int PyBind11Initialize() {
     pybind11::initialize_interpreter();
     std::cout << "[PyBind11Initialize] Using Python " << std::endl;
     pybind11::exec("import sys; print(sys.version)");
-    // TODO: remember to uncomment it.
-//    pybind11::exec("import " + std::string(inline_script));
-//    pybind11::exec("import libyt");
-//    std::cout << "[PyBind11Initialize] import " << inline_script << " and libyt" << std::endl;
+    return 0;
+}
+
+int PyBind11Import(const char *inline_script) {
+    pybind11::exec("import " + std::string(inline_script));
+    pybind11::exec("import libyt");
+    std::cout << "[PyBind11Initialize] import " << inline_script << " and libyt" << std::endl;
     return 0;
 }
 

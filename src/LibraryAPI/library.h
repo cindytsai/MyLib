@@ -9,7 +9,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int Initialize(int argc, char* argv[], const char* inline_script);
+int Initialize(int argc, char* argv[]);
+int Import(const char* inline_script);
 int Finalize();
 
 int PyBind11Demo();

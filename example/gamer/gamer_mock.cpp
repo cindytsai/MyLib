@@ -20,7 +20,10 @@ int main (int argc, char *argv[]){
     int  grid_size = GRID_SIZE;
     int  num_grids = 8784; // cannot alter arbitrary.
     int  num_grids_local, start_id, end_id;
+    std::string inline_script = std::string("inline_script");
 
+    start_id = 0;
+    end_id = num_grids;
     num_grids_local = num_grids;
 
     // read in hierarchy in this part
@@ -68,8 +71,12 @@ int main (int argc, char *argv[]){
     hier.close();
 
     /* Generate data set for testing */
-    if (Initialize(argc, argv, "inline_script") != LIBRARY_SUCCESS ) {
+    if (Initialize(argc, argv) != LIBRARY_SUCCESS) {
         printf("yt_initialize failed!\n");
+    }
+
+    if (Import(inline_script.c_str()) != LIBRARY_SUCCESS) {
+        printf("yt_import failed!\n");
     }
 
     struct yt_param_yt param_yt;
@@ -184,7 +191,7 @@ int main (int argc, char *argv[]){
 //        yt_commit();
 //
 
-        PyBind11_Run("inline_script", "test_function");
+        PyBind11_Run(inline_script.c_str(), "test_function");
 
 //
 //        yt_free();
