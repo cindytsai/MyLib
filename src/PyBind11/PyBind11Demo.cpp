@@ -6,7 +6,11 @@
 #include "pybind11/embed.h"
 #include <iostream>
 
+#define INIT_GLOBAL
+
 #include "PyBind11Demo.h"
+
+#undef INIT_GLOBAL
 
 int PyBind11Initialize() {
     pybind11::initialize_interpreter();
@@ -32,6 +36,7 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
     m.attr("demo") = pybind11::dict("spam"_a = pybind11::none());
     m.attr("param_yt") = pybind11::dict();
     m.attr("param_user") = pybind11::dict();
+    m.attr("hierarchy") = pybind11::dict();
     m.attr("libyt_info") = pybind11::dict("version"_a = "0.0.1");
 
     m.def("add", [](int i, int j) {
@@ -128,6 +133,34 @@ int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
     return 0;
 }
 
+int PyBind11InitHier(long num_grids) {
+    std::cout << "[PyBind11] Setting hierarchy " << std::endl;
+
+    auto pybind11_libyt = pybind11::module_::import("libyt");
+    pybind11::dict hier = pybind11_libyt.attr("hierarchy");
+
+    // allocate array
+    grid_left_edge = new double[num_grids * 3];
+    grid_right_edge = new double[num_grids * 3];
+    grid_dimensions = new int[num_grids * 3];
+    grid_levels = new int[num_grids];
+    grid_parent_id = new long[num_grids];
+    proc_num = new int[num_grids];
+
+    // bind to hierarchy
+    hier["grid_left_edge"] = pybind11::memoryview::from_buffer(
+            grid_left_edge,   // buffer pointer
+            {1, 3},           // shape (rows, cols), MUST be constant, cannot be a variable
+            {sizeof(double) * 3, sizeof(double)}  // strides in bytes
+    );
+
+    pybind11::exec("print(libyt.hierarchy)");
+    pybind11::exec("import numpy as np; print(np.array(libyt.hierarchy['grid_left_edge']).flags)");
+    pybind11::exec("print(np.array(libyt.hierarchy['grid_left_edge']).shape)");
+
+    return 0;
+}
+
 int PyBind11Run(const char *inline_script, const char *function) {
     std::cout << "[PyBind11] Running " << function << std::endl;
 
@@ -166,35 +199,53 @@ int PyBind11CallTestScript() {
     pybind11::dict demo = pybind11_libyt.attr("demo");
     demo["spam"] = 1;
 
-    const uint8_t buffer[] = {
+    uint8_t buffer[] = {
             0, 1, 2, 3,
             4, 5, 6, 7
     };
-//    demo["array"] = pybind11::memoryview::from_buffer(
-//            buffer,                                    // buffer pointer
-//            { 2, 4 },                                  // shape (rows, cols)
-//            { sizeof(uint8_t) * 4, sizeof(uint8_t) }   // strides in bytes
-//    );
     demo["array"] = pybind11::memoryview::from_buffer(
             buffer,                                    // buffer pointer
-            { 8 },                                     // shape
-            { sizeof(uint8_t) }                        // strides in bytes
+            {2, 4},                                  // shape (rows, cols)
+            {sizeof(uint8_t) * 4, sizeof(uint8_t)}   // strides in bytes
     );
+//    demo["array"] = pybind11::memoryview::from_buffer(
+//            buffer,                                    // buffer pointer
+//            { 8 },                                     // shape
+//            { sizeof(uint8_t) }                        // strides in bytes
+//    );
 
     pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array']))");
 
-    int *array = new int [10];
+    int *array = new int[10];
+
     for (int i = 0; i < 10; i++) {
         array[i] = i;
     }
+
 //    demo["array_int"] = pybind11::memoryview::from_memory(array, sizeof(uint32_t) * 10); // doesn't work
     demo["array_int"] = pybind11::memoryview::from_buffer(
             array,                                    // buffer pointer
-            { 10 },                                   // shape
-            { sizeof(int) }                           // strides in bytes
+            {10},                                   // shape
+            {sizeof(int)}                           // strides in bytes
     );
 
-    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array_int']))");
+    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
+
+    for (int i = 0; i < 10; i++) {
+        array[i] = i * 100;
+    }
+
+    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
+    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array_int']).flags)");
+
+    pybind11::exec("pybind11_libyt.demo['array_int'][0] = -1000");
+    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
+
+    std::cout << "cpp = ";
+    for (int i = 0; i < 10; i++) {
+        std::cout << array[i] << " ";
+    }
+    std::cout << std::endl;
 
     delete[] array;
 

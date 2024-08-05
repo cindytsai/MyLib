@@ -91,6 +91,16 @@ int PyBind11_SetFields(struct yt_field *yt_field_ptr, int len) {
 #endif
 }
 
+int PyBind11_InitHier(long num_grids) {
+#ifdef USE_PYBIND11
+    PyBind11InitHier(num_grids);
+    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
+}
+
 int PyBind11_Run(const char *inline_script, const char *function) {
 #ifdef USE_PYBIND11
     PyBind11Run(inline_script, function);

@@ -152,6 +152,8 @@ int main (int argc, char *argv[]){
         field_list[1].contiguous_in_x = true;
         PyBind11_SetFields(field_list, param_yt.num_fields);
 
+        PyBind11_InitHier(num_grids);
+
 //        yt_grid *grids_local;
 //        yt_get_GridsPtr( &grids_local );
 //
