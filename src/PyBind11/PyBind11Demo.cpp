@@ -155,7 +155,7 @@ int PyBind11InitHier(long num_grids) {
     );
 
     pybind11::exec("print(libyt.hierarchy)");
-    pybind11::exec("import numpy as np; print(np.array(libyt.hierarchy['grid_left_edge']).flags)");
+    pybind11::exec("import numpy as np; print(np.array(libyt.hierarchy['grid_left_edge'], copy=False).flags)");
     pybind11::exec("print(np.array(libyt.hierarchy['grid_left_edge']).shape)");
 
     return 0;
@@ -199,6 +199,7 @@ int PyBind11CallTestScript() {
     pybind11::dict demo = pybind11_libyt.attr("demo");
     demo["spam"] = 1;
 
+    // Bind to array with determined shape and size
     uint8_t buffer[] = {
             0, 1, 2, 3,
             4, 5, 6, 7
@@ -208,13 +209,8 @@ int PyBind11CallTestScript() {
             {2, 4},                                  // shape (rows, cols)
             {sizeof(uint8_t) * 4, sizeof(uint8_t)}   // strides in bytes
     );
-//    demo["array"] = pybind11::memoryview::from_buffer(
-//            buffer,                                    // buffer pointer
-//            { 8 },                                     // shape
-//            { sizeof(uint8_t) }                        // strides in bytes
-//    );
 
-    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array']))");
+    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array'], copy=False))");
 
     int *array = new int[10];
 
@@ -236,7 +232,7 @@ int PyBind11CallTestScript() {
     }
 
     pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
-    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array_int']).flags)");
+    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array_int'], copy=False).flags)");
 
     pybind11::exec("pybind11_libyt.demo['array_int'][0] = -1000");
     pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
