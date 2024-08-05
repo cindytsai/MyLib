@@ -150,7 +150,7 @@ int PyBind11InitHier(long num_grids) {
     // bind to hierarchy
     hier["grid_left_edge"] = pybind11::memoryview::from_buffer(
             grid_left_edge,   // buffer pointer
-            {1, 3},           // shape (rows, cols), MUST be constant, cannot be a variable
+            {(int) num_grids, 3},           // shape (rows, cols)
             {sizeof(double) * 3, sizeof(double)}  // strides in bytes
     );
 
