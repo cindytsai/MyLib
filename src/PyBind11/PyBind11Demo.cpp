@@ -133,7 +133,7 @@ int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
     return 0;
 }
 
-int PyBind11InitHier(long num_grids) {
+int PyBind11InitHier(int num_grids) {
     std::cout << "[PyBind11] Setting hierarchy " << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -149,14 +149,39 @@ int PyBind11InitHier(long num_grids) {
 
     // bind to hierarchy
     hier["grid_left_edge"] = pybind11::memoryview::from_buffer(
-            grid_left_edge,   // buffer pointer
-            {(int) num_grids, 3},           // shape (rows, cols)
+            grid_left_edge,                       // buffer pointer
+            {num_grids, 3},                       // shape (rows, cols)
             {sizeof(double) * 3, sizeof(double)}  // strides in bytes
+    );
+    hier["grid_right_edge"] = pybind11::memoryview::from_buffer(
+            grid_right_edge,
+            {num_grids, 3},
+            {sizeof(double) * 3, sizeof(double)}
+    );
+    hier["grid_dimensions"] = pybind11::memoryview::from_buffer(
+            grid_dimensions,
+            {num_grids, 3},
+            {sizeof(int) * 3, sizeof(int)}
+    );
+    hier["grid_levels"] = pybind11::memoryview::from_buffer(
+            grid_levels,
+            {num_grids},
+            {sizeof(int)}
+    );
+    hier["grid_parent_id"] = pybind11::memoryview::from_buffer(
+            grid_parent_id,
+            {num_grids},
+            {sizeof(long)}
+    );
+    hier["proc_num"] = pybind11::memoryview::from_buffer(
+            proc_num,
+            {num_grids},
+            {sizeof(int)}
     );
 
     pybind11::exec("print(libyt.hierarchy)");
-    pybind11::exec("import numpy as np; print(np.array(libyt.hierarchy['grid_left_edge'], copy=False).flags)");
-    pybind11::exec("print(np.array(libyt.hierarchy['grid_left_edge']).shape)");
+//    pybind11::exec("import numpy as np; print(np.array(libyt.hierarchy['grid_left_edge'], copy=False).flags)");
+//    pybind11::exec("print(np.array(libyt.hierarchy['grid_left_edge']).shape)");
 
     return 0;
 }
@@ -220,7 +245,7 @@ int PyBind11CallTestScript() {
 
 //    demo["array_int"] = pybind11::memoryview::from_memory(array, sizeof(uint32_t) * 10); // doesn't work
     demo["array_int"] = pybind11::memoryview::from_buffer(
-            array,                                    // buffer pointer
+            array,                                  // buffer pointer
             {10},                                   // shape
             {sizeof(int)}                           // strides in bytes
     );
@@ -244,6 +269,9 @@ int PyBind11CallTestScript() {
     std::cout << std::endl;
 
     delete[] array;
+
+    // bind to array with dynamic size
+//    demo["dynamic_array"] =
 
     pybind11::object result = pybind11_libyt.attr("add")(1, 2);
     std::cout << "call pybind11_libyt.add(1,2) = " << result.cast<int>() << std::endl;
