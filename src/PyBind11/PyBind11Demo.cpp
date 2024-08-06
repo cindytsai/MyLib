@@ -159,6 +159,7 @@ int PyBind11InitHier(int num_grids, struct yt_grid **grids_local) {
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
     pybind11::dict hier = pybind11_libyt.attr("hierarchy");
+    int num_fields = pybind11_libyt.attr("param_yt")["num_fields"].cast<int>();
 
     // allocate array
     grid_left_edge = new double[num_grids * 3];
@@ -207,6 +208,10 @@ int PyBind11InitHier(int num_grids, struct yt_grid **grids_local) {
 
     // allocate grids_local to mimic libyt, which is bad
     global_grids_local = new struct yt_grid[num_grids];
+    for (int g = 0; g < num_grids; g++) {
+        global_grids_local[g].field_data = new struct yt_data[num_fields];
+    }
+
     *grids_local = global_grids_local;
 
     return 0;
@@ -222,8 +227,10 @@ int PyBind11Commit() {
     //       I think it initialize the local grids and then free it after commit, and this is bad
     long num_grids = pybind11_libyt.attr("param_yt")["num_grids"].cast<long>();
     int num_fields = pybind11_libyt.attr("param_yt")["num_fields"].cast<int>();
+    pybind11::dict grid_data = pybind11_libyt.attr("grid_data");
 
     for (long g = 0; g < num_grids; g++) {
+        // set hierarchy grid by grid
         for (int d = 0; d < 3; d++) {
             grid_dimensions[g * 3 + d] = global_grids_local[g].grid_dimensions[d];
             grid_left_edge[g * 3 + d] = global_grids_local[g].left_edge[d];
@@ -232,10 +239,41 @@ int PyBind11Commit() {
         grid_parent_id[g] = global_grids_local[g].parent_id;
         grid_levels[g] = global_grids_local[g].level;
         proc_num[g] = global_grids_local[g].proc_num;
+
+        // bind buffer field by field
+        for (int v = 0; v < num_fields; v++) {
+            if (global_grids_local[g].field_data[v].data_ptr != nullptr) {
+
+                pybind11::dict field_data;
+
+                if (!hasattr(grid_data, pybind11::int_(g))) {
+                    field_data = pybind11::dict();
+                    grid_data[pybind11::int_(g)] = field_data;
+                } else {
+                    field_data = grid_data[pybind11::int_(g)];
+                }
+
+                // TODO: field name set is hard-coded
+                field_data["CCTwos"] = pybind11::memoryview::from_buffer(
+                        (double*) global_grids_local[g].field_data[v].data_ptr,
+                        {grid_dimensions[g * 3 + 0], grid_dimensions[g * 3 + 1], grid_dimensions[g * 3 + 2]},
+                        {sizeof(double), sizeof(double) * grid_dimensions[g * 3 + 0],
+                         sizeof(double) * grid_dimensions[g * 3 + 0] * grid_dimensions[g * 3 + 1]}
+                );
+            }
+        }
     }
 
     // delete global_grids_local
+    for (long g = 0; g < num_grids; g++) {
+        delete[] global_grids_local[g].field_data;
+    }
     delete[] global_grids_local;
+
+
+    pybind11::exec("print(libyt.grid_data.keys())");
+    pybind11::exec("print(np.array(libyt.grid_data[8783]['CCTwos'], copy=False))");
+    pybind11::exec("print(np.array(libyt.grid_data[8783]['CCTwos'], copy=False).flags)");
 
     return 0;
 }

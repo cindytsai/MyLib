@@ -4,6 +4,28 @@
 #include <cfloat>
 #include <climits>
 
+struct yt_data {
+    void* data_ptr;
+    int data_dimensions[3];
+
+#ifdef __cplusplus
+    //===================================================================================
+    // Method      :  yt_data
+    // Description :  Constructor of the structure "yt_data"
+    //
+    // Note        :  Initialize all data members
+    //
+    // Parameter   :  None
+    //===================================================================================
+    yt_data() {
+        data_ptr = nullptr;
+        for (int d = 0; d < 3; d++) {
+            data_dimensions[d] = 0;
+        }
+    }
+#endif  // #ifdef __cplusplus
+} yt_data;
+
 struct yt_grid {
     double left_edge[3];
     double right_edge[3];
@@ -13,6 +35,7 @@ struct yt_grid {
     int grid_dimensions[3];
     int level;
     int proc_num;
+    struct yt_data* field_data;
 
 #ifdef __cplusplus
     //===================================================================================
@@ -36,6 +59,7 @@ struct yt_grid {
         parent_id = LONG_MIN;
         level = INT_MIN;
         proc_num = INT_MIN;
+        field_data = nullptr;
     }
 #endif  // #ifdef __cplusplus
 

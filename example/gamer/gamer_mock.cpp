@@ -9,6 +9,7 @@ Consider only cell-centered field and ignore particle data and derived data.
 #include <cstdio>
 #include <unistd.h>
 #include <cstdlib>
+#include <vector>
 
 #define GRID_SIZE 16
 
@@ -111,17 +112,16 @@ int main (int argc, char *argv[]){
     // for fields and particles
     param_yt.num_fields              = 2;         // cell-centered and derived
 
-    // generating field (twos field in cell-centered) and particle data (position x/y/z)
     // for testing data wrapping in libyt
-    // std::vector<double*> field_data;
+    std::vector<double*> field_data;
 
-    // for (int i = 0; i < num_grids_local; i++) {
-    //     double *temp = new double [grid_size * grid_size * grid_size];
-    //     for (int j = 0; j < grid_size * grid_size * grid_size; j++) {
-    //         temp[j] = 2.0;
-    //     }
-    //     field_data.push_back(temp);
-    // }
+     for (int i = 0; i < num_grids_local; i++) {
+         double *temp = new double [grid_size * grid_size * grid_size];
+         for (int j = 0; j < grid_size * grid_size * grid_size; j++) {
+             temp[j] = 2.0;
+         }
+         field_data.push_back(temp);
+     }
 
     // iteration starts
     for(int t=0; t<iter; t++) {
@@ -178,7 +178,7 @@ int main (int argc, char *argv[]){
             grids_local[lid].level = level[lid];
 
             // append cell-centered field data
-            // grids_local[lid].field_data[1].data_ptr = field_data[lid];
+             grids_local[lid].field_data[1].data_ptr = field_data[lid];
 
             // append particle data on gid = 0 only
             // if (gid == 0) {
@@ -190,7 +190,6 @@ int main (int argc, char *argv[]){
         }
 
         /* libyt API commit, call Python function, and free*/
-        // TODO: start here.
         if (PyBind11_Commit() != LIBRARY_SUCCESS) {
             std::cout << "[error] commit failed" << std::endl;
         }
@@ -217,6 +216,10 @@ int main (int argc, char *argv[]){
     delete [] dim1;
     delete [] dim2;
     delete [] dim3;
+
+    for (int i = 0; i < num_grids_local; i++) {
+        delete [] field_data[i];
+    }
 
     /* libyt API yt_finalize */
     if ( Finalize() != LIBRARY_SUCCESS ) {
