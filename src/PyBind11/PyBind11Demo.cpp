@@ -37,7 +37,15 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
     m.attr("param_yt") = pybind11::dict();
     m.attr("param_user") = pybind11::dict();
     m.attr("hierarchy") = pybind11::dict();
-    m.attr("libyt_info") = pybind11::dict("version"_a = "0.0.1");
+    m.attr("grid_data") = pybind11::dict();
+    m.attr("libyt_info") = pybind11::dict();
+
+    m.attr("libyt_info")["version"] = "0.0.1";
+    m.attr("libyt_info")["SERIAL_MODE"] = pybind11::bool_(true);
+    m.attr("libyt_info")["INTERACTIVE_MODE"] = pybind11::bool_(false);
+    m.attr("libyt_info")["JUPYTER_KERNEL"] = pybind11::bool_(false);
+    m.attr("libyt_info")["SUPPORT_TIMER"] = pybind11::bool_(false);
+
 
     m.def("add", [](int i, int j) {
         return i + j;
@@ -47,6 +55,19 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
 }
 
 int PyBind11SetUserParameterInt(const char *key, int value) {
+    std::cout << "[PyBind11] Setting user parameter" << std::endl;
+
+    auto pybind11_libyt = pybind11::module_::import("libyt");
+    pybind11::dict param_user = pybind11_libyt.attr("param_user");
+
+    param_user[key] = value;
+
+    pybind11::exec("import pprint; pprint.pprint(libyt.param_user)");
+
+    return 0;
+}
+
+int PyBind11SetUserParameterDouble(const char *key, double value) {
     std::cout << "[PyBind11] Setting user parameter" << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -133,7 +154,7 @@ int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
     return 0;
 }
 
-int PyBind11InitHier(int num_grids) {
+int PyBind11InitHier(int num_grids, struct yt_grid **grids_local) {
     std::cout << "[PyBind11] Setting hierarchy " << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -165,23 +186,56 @@ int PyBind11InitHier(int num_grids) {
     );
     hier["grid_levels"] = pybind11::memoryview::from_buffer(
             grid_levels,
-            {num_grids},
-            {sizeof(int)}
+            {num_grids, 1},
+            {sizeof(int), sizeof(int)}
     );
     hier["grid_parent_id"] = pybind11::memoryview::from_buffer(
             grid_parent_id,
-            {num_grids},
-            {sizeof(long)}
+            {num_grids, 1},
+            {sizeof(long), sizeof(long)}
     );
     hier["proc_num"] = pybind11::memoryview::from_buffer(
             proc_num,
-            {num_grids},
-            {sizeof(int)}
+            {num_grids, 1},
+            {sizeof(int), sizeof(int)}
     );
 
     pybind11::exec("print(libyt.hierarchy)");
 //    pybind11::exec("import numpy as np; print(np.array(libyt.hierarchy['grid_left_edge'], copy=False).flags)");
+    pybind11::exec("import numpy as np; print(type(np.array(libyt.hierarchy['grid_left_edge'], copy=False)))");
 //    pybind11::exec("print(np.array(libyt.hierarchy['grid_left_edge']).shape)");
+
+    // allocate grids_local to mimic libyt, which is bad
+    global_grids_local = new struct yt_grid[num_grids];
+    *grids_local = global_grids_local;
+
+    return 0;
+}
+
+int PyBind11Commit() {
+    std::cout << "[PyBind11] Commit" << std::endl;
+
+    auto pybind11_libyt = pybind11::module_::import("libyt");
+
+    // bind grids_local to hierarchy
+    // TODO: how does libyt do it, we should also mimic it here.
+    //       I think it initialize the local grids and then free it after commit, and this is bad
+    long num_grids = pybind11_libyt.attr("param_yt")["num_grids"].cast<long>();
+    int num_fields = pybind11_libyt.attr("param_yt")["num_fields"].cast<int>();
+
+    for (long g = 0; g < num_grids; g++) {
+        for (int d = 0; d < 3; d++) {
+            grid_dimensions[g * 3 + d] = global_grids_local[g].grid_dimensions[d];
+            grid_left_edge[g * 3 + d] = global_grids_local[g].left_edge[d];
+            grid_right_edge[g * 3 + d] = global_grids_local[g].right_edge[d];
+        }
+        grid_parent_id[g] = global_grids_local[g].parent_id;
+        grid_levels[g] = global_grids_local[g].level;
+        proc_num[g] = global_grids_local[g].proc_num;
+    }
+
+    // delete global_grids_local
+    delete[] global_grids_local;
 
     return 0;
 }

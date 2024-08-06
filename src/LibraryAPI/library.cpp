@@ -82,6 +82,16 @@ int PyBind11_SetUserParameterInt(const char *key, int value) {
 #endif
 }
 
+int PyBind11_SetUserParameterDouble(const char* key, double value) {
+#ifdef USE_PYBIND11
+    PyBind11SetUserParameterDouble(key, value);
+    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
+}
+
 int PyBind11_SetFields(struct yt_field *yt_field_ptr, int len) {
 #ifdef USE_PYBIND11
     PyBind11SetFields(yt_field_ptr, len);
@@ -91,9 +101,19 @@ int PyBind11_SetFields(struct yt_field *yt_field_ptr, int len) {
 #endif
 }
 
-int PyBind11_InitHier(long num_grids) {
+int PyBind11_InitHier(long num_grids, struct yt_grid **grids_local) {
 #ifdef USE_PYBIND11
-    PyBind11InitHier(num_grids);
+    PyBind11InitHier(num_grids, grids_local);
+    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
+}
+
+int PyBind11_Commit() {
+#ifdef USE_PYBIND11
+    PyBind11Commit();
     return LIBRARY_SUCCESS;
 #else
     std::cout << "[] no pybind11" << std::endl;

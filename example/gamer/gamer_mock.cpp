@@ -4,7 +4,6 @@ Consider only cell-centered field and ignore particle data and derived data.
 */
 
 #include "library.h"
-#include "DataTypes/YTField.h"
 #include <iostream>
 #include <fstream>
 #include <cstdio>
@@ -133,6 +132,8 @@ int main (int argc, char *argv[]){
         /* libyt API yt_set_UserParameter */
         PyBind11_SetUserParameterInt("mhd", 0);
         PyBind11_SetUserParameterInt("srhd", 0);
+        PyBind11_SetUserParameterInt("opt_unit", 0);
+        PyBind11_SetUserParameterDouble("mu", 0.6);
 
         /* libyt API yt_get_FieldsPtr */
         struct yt_field *field_list = new struct yt_field[param_yt.num_fields];
@@ -152,53 +153,55 @@ int main (int argc, char *argv[]){
         field_list[1].contiguous_in_x = true;
         PyBind11_SetFields(field_list, param_yt.num_fields);
 
-        PyBind11_InitHier(num_grids);
+        // TODO: how does libyt do this.
+        //       I think it initialize the local grids and then free it after commit, and this is bad
+        struct yt_grid *grids_local;
+        PyBind11_InitHier(num_grids, &grids_local);
 
-//        yt_grid *grids_local;
-//        yt_get_GridsPtr( &grids_local );
-//
-//        // parent_id, level, left/right edge, grid_dimensions
-//        for(long lid=0; lid<num_grids_local; lid++){
-//            // general info
-//            grids_local[lid].left_edge[0]  = left_edge1[lid];
-//            grids_local[lid].left_edge[1]  = left_edge2[lid];
-//            grids_local[lid].left_edge[2]  = left_edge3[lid];
-//
-//            grids_local[lid].right_edge[0]  = right_edge1[lid];
-//            grids_local[lid].right_edge[1]  = right_edge2[lid];
-//            grids_local[lid].right_edge[2]  = right_edge3[lid];
-//
-//            grids_local[lid].grid_dimensions[0]  = dim1[lid];
-//            grids_local[lid].grid_dimensions[1]  = dim2[lid];
-//            grids_local[lid].grid_dimensions[2]  = dim3[lid];
-//
-//            grids_local[lid].id = id[lid];
-//            grids_local[lid].parent_id = parent_id[lid];
-//            grids_local[lid].level = level[lid];
-//
-//            // append cell-centered field data
-//            // grids_local[lid].field_data[1].data_ptr = field_data[lid];
-//
-//            // append particle data on gid = 0 only
-//            // if (gid == 0) {
-//            //     grids_local[lid].par_count_list[0] = grid_size * grid_size * grid_size;
-//            //     grids_local[lid].particle_data[0][0].data_ptr = particle_data[0];
-//            //     grids_local[lid].particle_data[0][1].data_ptr = particle_data[1];
-//            //     grids_local[lid].particle_data[0][2].data_ptr = particle_data[2];
-//            // }
-//        }
-//
-//        /* libyt API commit, call Python function, and free*/
-//
-//        yt_commit();
-//
+        // parent_id, level, left/right edge, grid_dimensions
+        for(long lid=0; lid<num_grids_local; lid++){
+            // general info
+            grids_local[lid].left_edge[0]  = left_edge1[lid];
+            grids_local[lid].left_edge[1]  = left_edge2[lid];
+            grids_local[lid].left_edge[2]  = left_edge3[lid];
 
-        PyBind11_Run(inline_script.c_str(), "test_function");
+            grids_local[lid].right_edge[0]  = right_edge1[lid];
+            grids_local[lid].right_edge[1]  = right_edge2[lid];
+            grids_local[lid].right_edge[2]  = right_edge3[lid];
 
-//
+            grids_local[lid].grid_dimensions[0]  = dim1[lid];
+            grids_local[lid].grid_dimensions[1]  = dim2[lid];
+            grids_local[lid].grid_dimensions[2]  = dim3[lid];
+
+            grids_local[lid].id = id[lid];
+            grids_local[lid].parent_id = parent_id[lid];
+            grids_local[lid].level = level[lid];
+
+            // append cell-centered field data
+            // grids_local[lid].field_data[1].data_ptr = field_data[lid];
+
+            // append particle data on gid = 0 only
+            // if (gid == 0) {
+            //     grids_local[lid].par_count_list[0] = grid_size * grid_size * grid_size;
+            //     grids_local[lid].particle_data[0][0].data_ptr = particle_data[0];
+            //     grids_local[lid].particle_data[0][1].data_ptr = particle_data[1];
+            //     grids_local[lid].particle_data[0][2].data_ptr = particle_data[2];
+            // }
+        }
+
+        /* libyt API commit, call Python function, and free*/
+        // TODO: start here.
+        if (PyBind11_Commit() != LIBRARY_SUCCESS) {
+            std::cout << "[error] commit failed" << std::endl;
+        }
+
+        if (PyBind11_Run(inline_script.c_str(), "test_function") != LIBRARY_SUCCESS) {
+            std::cout << "[error] run failed" << std::endl;
+        }
+
 //        yt_free();
-//
-//        std::cout << "[FLAG] step = " << t << std::endl;
+
+        std::cout << "[FLAG] step = " << t << std::endl;
     }
 
     /* free dummy data */
