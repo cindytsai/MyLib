@@ -254,11 +254,13 @@ int PyBind11Commit() {
                 }
 
                 // TODO: field name set is hard-coded
+                // TODO: should also work on checking contiguous_in_x and wrapping data mechanisms
                 field_data["CCTwos"] = pybind11::memoryview::from_buffer(
                         (double*) global_grids_local[g].field_data[v].data_ptr,
                         {grid_dimensions[g * 3 + 0], grid_dimensions[g * 3 + 1], grid_dimensions[g * 3 + 2]},
                         {sizeof(double), sizeof(double) * grid_dimensions[g * 3 + 0],
-                         sizeof(double) * grid_dimensions[g * 3 + 0] * grid_dimensions[g * 3 + 1]}
+                         sizeof(double) * grid_dimensions[g * 3 + 0] * grid_dimensions[g * 3 + 1]},
+                         true // read-only
                 );
             }
         }
@@ -270,9 +272,10 @@ int PyBind11Commit() {
     }
     delete[] global_grids_local;
 
-
     pybind11::exec("print(libyt.grid_data.keys())");
-    pybind11::exec("print(np.array(libyt.grid_data[8783]['CCTwos'], copy=False))");
+    pybind11::exec("print(dir(libyt.grid_data[8783]['CCTwos']))");
+    pybind11::exec("print(libyt.grid_data[8783]['CCTwos'].readonly)");
+    pybind11::exec("print(libyt.grid_data[8783]['CCTwos'][0,0,0])");
     pybind11::exec("print(np.array(libyt.grid_data[8783]['CCTwos'], copy=False).flags)");
 
     return 0;
@@ -296,7 +299,7 @@ PYBIND11_EMBEDDED_MODULE(pybind11_libyt, m) {
     m.def("add", [](int i, int j) {
         return i + j;
     });
-    m.def("derived_func", []() {
+    m.def("func", []() {
     });
 }
 
