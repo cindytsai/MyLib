@@ -4,7 +4,11 @@
 #include "DataTypes/YTField.h"
 #include "DataTypes/YTGrid.h"
 #include "pybind11/embed.h"
+#include "pybind11/numpy.h"
 #include <iostream>
+#ifdef USE_VALGRIND
+#include <valgrind/valgrind.h>
+#endif
 
 #define INIT_GLOBAL
 
@@ -338,35 +342,63 @@ int PyBind11CallTestScript() {
         array[i] = i;
     }
 
-//    demo["array_int"] = pybind11::memoryview::from_memory(array, sizeof(uint32_t) * 10); // doesn't work
-    demo["array_int"] = pybind11::memoryview::from_buffer(
+//    demo["memoryview"] = pybind11::memoryview::from_memory(array, sizeof(uint32_t) * 10); // doesn't work
+    demo["memoryview"] = pybind11::memoryview::from_buffer(
             array,                                  // buffer pointer
             {10},                                   // shape
             {sizeof(int)}                           // strides in bytes
     );
 
-    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
+    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['memoryview']))");
 
     for (int i = 0; i < 10; i++) {
         array[i] = i * 100;
     }
 
-    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
-    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['array_int'], copy=False).flags)");
+    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['memoryview']))");
+    pybind11::exec("import numpy as np; print(np.array(pybind11_libyt.demo['memoryview'], copy=False).flags)");
 
-    pybind11::exec("pybind11_libyt.demo['array_int'][0] = -1000");
-    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['array_int']))");
-
+    pybind11::exec("pybind11_libyt.demo['memoryview'][0] = -1000");
+    pybind11::exec("import numpy as np; print('python =', np.array(pybind11_libyt.demo['memoryview']))");
     std::cout << "cpp = ";
     for (int i = 0; i < 10; i++) {
         std::cout << array[i] << " ";
     }
     std::cout << std::endl;
-
     delete[] array;
+    pybind11::exec("print('---------------------')");
 
     // bind to array with dynamic size
-//    demo["dynamic_array"] =
+    double *double_array = new double [100000];
+    for (int i = 0; i < 100000; i++) {
+        double_array[i] = i + 0.1;
+    }
+    demo["numpy_array_bind"] = pybind11::array_t<double>({100000, 1}, double_array);
+
+//    demo["numpy_array"] = pybind11::array_t<double>(100000);
+#ifdef USE_VALGRIND
+    VALGRIND_MONITOR_COMMAND("detailed_snapshot snapshot_before");
+#endif
+
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'])");
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].shape)");
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].flags)");
+    pybind11::exec("print(type(pybind11_libyt.demo['numpy_array_bind']))");
+
+    // Even though it binds to the array allocated by us, it still gets freed by Python.
+    pybind11::exec("del pybind11_libyt.demo['numpy_array_bind']");
+    pybind11::exec("import gc; gc.collect()"); // TODO: this won't work, I can still access double_array, needs delete[]
+    delete[] double_array;
+
+    pybind11::exec("print('---------------------')");
+//    pybind11::exec("print(pybind11_libyt.demo['numpy_array'])");
+//    pybind11::exec("print(pybind11_libyt.demo['numpy_array'].shape)");
+//    pybind11::exec("print(pybind11_libyt.demo['numpy_array'].flags)");
+//    pybind11::exec("print(type(pybind11_libyt.demo['numpy_array']))");
+//    pybind11::exec("del pybind11_libyt.demo['numpy_array']");
+#ifdef USE_VALGRIND
+    VALGRIND_MONITOR_COMMAND("detailed_snapshot snapshot_after");
+#endif
 
     pybind11::object result = pybind11_libyt.attr("add")(1, 2);
     std::cout << "call pybind11_libyt.add(1,2) = " << result.cast<int>() << std::endl;
