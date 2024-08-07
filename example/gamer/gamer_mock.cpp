@@ -13,7 +13,24 @@ Consider only cell-centered field and ignore particle data and derived data.
 
 #define GRID_SIZE 16
 
+void DerivedFunc(const int grid_list_len, const long* grid_list, const char* field_name, struct yt_data* data_array) {
+    for (int g = 0; g < grid_list_len; g++) {
+        for (int k = 0; k < data_array[g].data_dimensions[0]; k++) {
+            for (int j = 0; j < data_array[g].data_dimensions[1]; j++) {
+                for (int i = 0; i < data_array[g].data_dimensions[2]; i++) {
+                    long idx = k * data_array[g].data_dimensions[1] * data_array[g].data_dimensions[2] + j * data_array[g].data_dimensions[2] + i;
+                    ((double*)data_array[g].data_ptr)[idx] = 1.0;
+                }
+            }
+        }
+    }
+}
+
 int main (int argc, char *argv[]){
+
+    /* Cpp version */
+    std::cout << "C++ version: " << __cplusplus << std::endl;
+    PrintCXXVersion();
 
     /* Parameters for testing */
     int iter = 1;
@@ -145,7 +162,7 @@ int main (int argc, char *argv[]){
         const char *field_name_alias[] = {"Name Alias 1", "Name Alias 2", "Name Alias 3"};
         field_list[0].field_name_alias = field_name_alias;
         field_list[0].num_field_name_alias = 3;
-//        field_list[0].derived_func = DerivedFunc;
+        field_list[0].derived_func = DerivedFunc;
 
         // set cell-centered field
         field_list[1].field_name = "CCTwos";

@@ -1,6 +1,8 @@
 #ifndef MYLIB_YTFIELD_H
 #define MYLIB_YTFIELD_H
 
+#include "YTData.h"
+
 struct yt_field {
     const char* field_name;
     const char* field_type;
@@ -10,7 +12,7 @@ struct yt_field {
     int num_field_name_alias;
     const char** field_name_alias;
     const char* field_display_name;
-    void (*derived_func)(const int, const long*, const char*);
+    void (*derived_func)(const int, const long*, const char*, struct yt_data*);
 
 #ifdef __cplusplus
     //=======================================================================================================
