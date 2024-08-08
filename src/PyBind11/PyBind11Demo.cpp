@@ -389,13 +389,24 @@ int PyBind11CallNumPyTestScript() {
     // bind to array with dynamic size
     double *double_array = new double [100000];
     for (int i = 0; i < 100000; i++) {
-        double_array[i] = i;
+        double_array[i] = i + 0.1;
     }
 
     // this won't free the memory at the very end, even though the key-value pair is deleted.
-    demo["numpy_array_bind"] = pybind11::array_t<double>({100000, 1}, {sizeof(double), sizeof(double)}, double_array);
+    auto numpy_array_bind = pybind11::array_t<double>({100000, 1}, {sizeof(double), sizeof(double)}, double_array);
+    auto numpy_array_bind_view = numpy_array_bind.mutable_data();
+    demo["numpy_array_bind"] = numpy_array_bind;
 
-    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'])");
+    // I'm not sure if this makes a copy because ...
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'][0, 0])"); // this prints 0.1
+    double_array[0] = 1000; // this won't work
+    numpy_array_bind_view[0] = 1000; // this works
+
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'][0, 0])"); // this still prints 0.1 even though it is changed.
+
+    std::cout << "[FLAG] double_array ptr = " << static_cast<void*>(double_array) << std::endl;
+    std::cout << "[FLAG] get from pybind11 = " << static_cast<void*>(numpy_array_bind.mutable_data()) << std::endl;
+
     pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].shape)");
     pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].flags)");
     pybind11::exec("print(type(pybind11_libyt.demo['numpy_array_bind']))");
