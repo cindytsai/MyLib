@@ -9,6 +9,7 @@ int PyBind11Initialize();
 int PyBind11Import(const char* inline_script);
 int PyBind11Finalize();
 int PyBind11CallTestScript();
+int PyBind11CallNumPyTestScript();
 int PyBind11SetParameters(struct yt_param_yt* yt_param_ptr);
 int PyBind11SetUserParameterInt(const char* key, int value);
 int PyBind11SetUserParameterDouble(const char* key, double value);

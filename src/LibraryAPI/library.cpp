@@ -132,8 +132,9 @@ int PyBind11_Run(const char *inline_script, const char *function) {
 }
 
 int PrintCXXVersion() {
-    Logger logger(LOG_DEBUG);
-    logger.Info("C++ version: %lld\n", __cplusplus);
+//    Logger logger(LOG_DEBUG);
+//    logger.Info("C++ version: %lld\n", __cplusplus);
+    std::cout << "[cpp version] " << __cplusplus << std::endl;
     return LIBRARY_SUCCESS;
 }
 
@@ -147,6 +148,13 @@ int UseDataType(const struct People *people) {
 int PyBind11Demo() {
 #ifdef USE_PYBIND11
     PyBind11CallTestScript();
+#endif
+    return LIBRARY_SUCCESS;
+}
+
+int PyBind11NumPyDemo() {
+#ifdef USE_PYBIND11
+    PyBind11CallNumPyTestScript();
 #endif
     return LIBRARY_SUCCESS;
 }

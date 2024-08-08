@@ -15,6 +15,7 @@ int Import(const char* inline_script);
 int Finalize();
 
 int PyBind11Demo();
+int PyBind11NumPyDemo();
 int PyBind11_SetParameters(struct yt_param_yt* yt_param_ptr);
 int PyBind11_SetUserParameterInt(const char* key, int value);
 int PyBind11_SetUserParameterDouble(const char* key, double value);
