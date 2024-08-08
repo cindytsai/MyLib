@@ -387,39 +387,28 @@ int PyBind11CallNumPyTestScript() {
 
 
     // bind to array with dynamic size
-//    double *double_array = new double [100000];
-//    for (int i = 0; i < 100000; i++) {
-//        double_array[i] = i + 0.1;
-//    }
+    double *double_array = new double [100000];
+    for (int i = 0; i < 100000; i++) {
+        double_array[i] = i;
+    }
 
-    // TODO: this frees the memory at the very end, even though I already deleted the key-value pair.
-//    pybind11::capsule free_when_done(double_array, [](void *f) {
-//        double *foo = reinterpret_cast<double *>(f);
-//        std::cout << "Element [0] = " << foo[0] << "\n";
-//        std::cout << "freeing memory @ " << f << "\n";
-//        delete[] foo;
-//    });
-//    demo["numpy_array_bind"] = pybind11::array_t<double>({100000, 1}, {sizeof(double), sizeof(double)}, double_array);
+    // this won't free the memory at the very end, even though the key-value pair is deleted.
+    demo["numpy_array_bind"] = pybind11::array_t<double>({100000, 1}, {sizeof(double), sizeof(double)}, double_array);
 
-//    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'])");
-//    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].shape)");
-//    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].flags)");
-//    pybind11::exec("print(type(pybind11_libyt.demo['numpy_array_bind']))");
-//
-//    // the buffer only gets deallocated when program exits, even though we freed it here.
-//    pybind11::exec("del pybind11_libyt.demo['numpy_array_bind']");
-//    pybind11::exec("import gc; gc.collect()");
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'])");
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].shape)");
+    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].flags)");
+    pybind11::exec("print(type(pybind11_libyt.demo['numpy_array_bind']))");
+    pybind11::exec("del pybind11_libyt.demo['numpy_array_bind']"); // it won't free double_array
 
     pybind11::exec("print('---------------------')");
 
     // ref: https://stackoverflow.com/questions/44659924/returning-numpy-arrays-via-pybind11?rq=4
     // using the second new method
-    size_t shape[2] = {100000, 1};
-    size_t stride[2] = {sizeof(double), sizeof(double)};
-    auto numpy_array = pybind11::array_t<double>(shape, stride);
+    auto numpy_array = pybind11::array_t<double>({100000, 1}, {sizeof(double), sizeof(double)});
     demo["numpy_array"] = numpy_array;
-    auto numpy_array_view = numpy_array.mutable_unchecked<2>();
-    numpy_array_view(0, 0) = -1000;
+    auto numpy_array_data = numpy_array.mutable_data();
+    numpy_array_data[0] = -2000;
 
 #ifdef USE_VALGRIND
     char filename[100];
@@ -427,12 +416,11 @@ int PyBind11CallNumPyTestScript() {
     VALGRIND_MONITOR_COMMAND(filename);
 #endif
 
-//
     pybind11::exec("print(pybind11_libyt.demo['numpy_array'][0, 0])");
     pybind11::exec("print(pybind11_libyt.demo['numpy_array'].shape)");
     pybind11::exec("print(pybind11_libyt.demo['numpy_array'].flags)");
     pybind11::exec("print(type(pybind11_libyt.demo['numpy_array']))");
-    pybind11::exec("del pybind11_libyt.demo['numpy_array']");
+    pybind11::exec("del pybind11_libyt.demo['numpy_array']"); // this frees array allocated by pybind11
 
 #ifdef USE_VALGRIND
     sprintf(filename, "detailed_snapshot snapshot_after_%d", count);
