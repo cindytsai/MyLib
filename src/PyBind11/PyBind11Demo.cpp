@@ -397,6 +397,8 @@ int PyBind11CallNumPyTestScript() {
     auto numpy_array_bind_view = numpy_array_bind.mutable_data();
     demo["numpy_array_bind"] = numpy_array_bind;
 
+    PyRun_SimpleString("print(dir())");
+
     // I'm not sure if this makes a copy because ...
     pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'][0, 0])"); // this prints 0.1
     double_array[0] = 1000; // this won't work
