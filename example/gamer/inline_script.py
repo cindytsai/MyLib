@@ -29,16 +29,3 @@ def test_function():
 
     slc = yt.SlicePlot(ds, 'z', ('gamer', field), center='c')
     slc.save()
-
-    print("---------------------")
-    array_derived_func = libyt.derived_func(1, field)
-    print(array_derived_func.shape)
-    print(len(np.unique(array_derived_func)))
-    print(type(array_derived_func))
-    for k in range(array_derived_func.shape[0]):
-        for j in range(array_derived_func.shape[1]):
-            for i in range(array_derived_func.shape[2]):
-                print(i, j, k, array_derived_func[k, j, i])
-
-
-
