@@ -14,15 +14,24 @@ Consider only cell-centered field and ignore particle data and derived data.
 #define GRID_SIZE 16
 
 void DerivedFunc(const int grid_list_len, const long* grid_list, const char* field_name, struct yt_data* data_array) {
+    char filename [1000];
     for (int g = 0; g < grid_list_len; g++) {
+        std::ifstream grid_data;
+        sprintf(filename, "/home/cindytsai/Documents/MyNotes/DevLog-libyt/Issues/memory-leakage/Data/DensGrids/Grid_%ld_Dens.txt", grid_list[g]);
+        grid_data.open(filename);
+        if (!grid_data.is_open()) {
+            std::cout << "Cannot open file " << filename << std::endl;
+            exit(1);
+        }
         for (int k = 0; k < data_array[g].data_dimensions[0]; k++) {
             for (int j = 0; j < data_array[g].data_dimensions[1]; j++) {
                 for (int i = 0; i < data_array[g].data_dimensions[2]; i++) {
                     long idx = k * data_array[g].data_dimensions[1] * data_array[g].data_dimensions[2] + j * data_array[g].data_dimensions[2] + i;
-                    ((double*)data_array[g].data_ptr)[idx] = 1.0;
+                    grid_data >> ((double*)data_array[g].data_ptr)[idx];
                 }
             }
         }
+        grid_data.close();
     }
 }
 
@@ -129,6 +138,8 @@ int main (int argc, char *argv[]){
     // for fields and particles
     param_yt.num_fields              = 2;         // cell-centered and derived
 
+    struct yt_field *field_list = new struct yt_field[param_yt.num_fields];
+
     // for testing data wrapping in libyt
     std::vector<double*> field_data;
 
@@ -152,11 +163,9 @@ int main (int argc, char *argv[]){
         PyBind11_SetUserParameterInt("opt_unit", 0);
         PyBind11_SetUserParameterDouble("mu", 0.6);
 
-        /* libyt API yt_get_FieldsPtr */
-        struct yt_field *field_list = new struct yt_field[param_yt.num_fields];
-
+        /* libyt API yt_set_Fields */
         // set derived field
-        field_list[0].field_name = "DerivedOnes";
+        field_list[0].field_name = "Dens";
         field_list[0].field_type = "derived_func";
         field_list[0].contiguous_in_x = true;
         const char *field_name_alias[] = {"Name Alias 1", "Name Alias 2", "Name Alias 3"};
@@ -196,14 +205,6 @@ int main (int argc, char *argv[]){
 
             // append cell-centered field data
              grids_local[lid].field_data[1].data_ptr = field_data[lid];
-
-            // append particle data on gid = 0 only
-            // if (gid == 0) {
-            //     grids_local[lid].par_count_list[0] = grid_size * grid_size * grid_size;
-            //     grids_local[lid].particle_data[0][0].data_ptr = particle_data[0];
-            //     grids_local[lid].particle_data[0][1].data_ptr = particle_data[1];
-            //     grids_local[lid].particle_data[0][2].data_ptr = particle_data[2];
-            // }
         }
 
         /* libyt API commit, call Python function, and free*/
@@ -233,6 +234,7 @@ int main (int argc, char *argv[]){
     delete [] dim1;
     delete [] dim2;
     delete [] dim3;
+    delete [] field_list;
 
     for (int i = 0; i < num_grids_local; i++) {
         delete [] field_data[i];

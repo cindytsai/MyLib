@@ -35,6 +35,44 @@ int PyBind11Finalize() {
     return 0;
 }
 
+pybind11::array derived_func(long gid, const char* fname) {
+    std::cout << "[PyBind11] derived_func" << std::endl;
+
+    int *grid_dim = &grid_dimensions[gid * 3];
+    int field_index = -1;
+    void (*derived_func)(const int, const long*, const char*, struct yt_data*) = nullptr;
+    for (int f = 0; f < global_num_fields; f++) {
+        if (strcmp(global_field_list[f].field_name, fname) == 0) {
+            field_index = f;
+            derived_func = global_field_list[f].derived_func;
+            break;
+        }
+    }
+
+    // TODO: fixed for double for now, and also fixed to contiguous_in_x = True
+    auto array = pybind11::array_t<double>({grid_dim[2], grid_dim[1], grid_dim[0]},
+                                           {sizeof(double) * grid_dim[1] * grid_dim[2],
+                                            sizeof(double) * grid_dim[1],
+                                            sizeof(double)});
+
+    std::cout << "array info: " << std::endl;
+    std::cout << "pointer   : " << static_cast<void*>(array.mutable_data()) << std::endl;
+
+    struct yt_data *data_array = new struct yt_data [1];
+    data_array[0].data_ptr = static_cast<void*>(array.mutable_data());
+    data_array[0].data_dimensions[0] = grid_dim[2];
+    data_array[0].data_dimensions[1] = grid_dim[1];
+    data_array[0].data_dimensions[2] = grid_dim[0];
+
+    derived_func(1, &gid, fname, data_array);
+
+    std::cout << "[FLAG] data_array[0].data_ptr[0] = " << ((double*) data_array[0].data_ptr)[0] << std::endl;
+
+    delete [] data_array;
+
+    return static_cast<pybind11::array>(array);
+}
+
 PYBIND11_EMBEDDED_MODULE(libyt, m) {
     using namespace pybind11::literals; // to bring in the `_a` literal
     m.attr("demo") = pybind11::dict("spam"_a = pybind11::none());
@@ -54,8 +92,7 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
     m.def("add", [](int i, int j) {
         return i + j;
     });
-    m.def("derived_func", []() {
-    });
+    m.def("derived_func", &derived_func, pybind11::return_value_policy::take_ownership);
 }
 
 int PyBind11SetUserParameterInt(const char *key, int value) {
@@ -131,6 +168,9 @@ int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
 
 int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
     std::cout << "[PyBind11] Setting fields " << std::endl;
+
+    global_field_list = yt_field_ptr;
+    global_num_fields = len;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
     pybind11::dict param_yt = pybind11_libyt.attr("param_yt");
@@ -379,40 +419,38 @@ int PyBind11CallTestScript() {
 
 int PyBind11CallNumPyTestScript() {
 
-    static int count = 0;
-
     auto pybind11_libyt = pybind11::module_::import("pybind11_libyt");
     pybind11::dict demo = pybind11_libyt.attr("demo");
     pybind11::exec("import pybind11_libyt");
 
 
-    // bind to array with dynamic size
-    double *double_array = new double [100000];
-    for (int i = 0; i < 100000; i++) {
-        double_array[i] = i + 0.1;
-    }
-
-    // this won't free the memory at the very end, even though the key-value pair is deleted.
-    auto numpy_array_bind = pybind11::array_t<double>({100000, 1}, {sizeof(double), sizeof(double)}, double_array);
-    auto numpy_array_bind_view = numpy_array_bind.mutable_data();
-    demo["numpy_array_bind"] = numpy_array_bind;
-
-    PyRun_SimpleString("print(dir())");
+//    // bind to array with dynamic size
+//    double *double_array = new double [100000];
+//    for (int i = 0; i < 100000; i++) {
+//        double_array[i] = i + 0.1;
+//    }
+//
+//    // this won't free the memory at the very end, even though the key-value pair is deleted.
+//    auto numpy_array_bind = pybind11::array_t<double>({100000, 1}, {sizeof(double), sizeof(double)}, double_array);
+//    auto numpy_array_bind_view = numpy_array_bind.mutable_data();
+//    demo["numpy_array_bind"] = numpy_array_bind;
+//
+//    PyRun_SimpleString("print(dir())");
 
     // I'm not sure if this makes a copy because ...
-    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'][0, 0])"); // this prints 0.1
-    double_array[0] = 1000; // this won't work
-    numpy_array_bind_view[0] = 1000; // this works
-
-    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'][0, 0])"); // this still prints 0.1 even though it is changed.
-
-    std::cout << "[FLAG] double_array ptr = " << static_cast<void*>(double_array) << std::endl;
-    std::cout << "[FLAG] get from pybind11 = " << static_cast<void*>(numpy_array_bind.mutable_data()) << std::endl;
-
-    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].shape)");
-    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].flags)");
-    pybind11::exec("print(type(pybind11_libyt.demo['numpy_array_bind']))");
-    pybind11::exec("del pybind11_libyt.demo['numpy_array_bind']"); // it won't free double_array
+//    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'][0, 0])"); // this prints 0.1
+//    double_array[0] = 1000; // this won't work
+//    numpy_array_bind_view[0] = 1000; // this works
+//
+//    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'][0, 0])"); // this still prints 0.1 even though it is changed.
+//
+//    std::cout << "[FLAG] double_array ptr = " << static_cast<void*>(double_array) << std::endl;
+//    std::cout << "[FLAG] get from pybind11 = " << static_cast<void*>(numpy_array_bind.mutable_data()) << std::endl;
+//
+//    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].shape)");
+//    pybind11::exec("print(pybind11_libyt.demo['numpy_array_bind'].flags)");
+//    pybind11::exec("print(type(pybind11_libyt.demo['numpy_array_bind']))");
+//    pybind11::exec("del pybind11_libyt.demo['numpy_array_bind']"); // it won't free double_array
 
     pybind11::exec("print('---------------------')");
 
@@ -423,23 +461,19 @@ int PyBind11CallNumPyTestScript() {
     auto numpy_array_data = numpy_array.mutable_data();
     numpy_array_data[0] = -2000;
 
-#ifdef USE_VALGRIND
-    char filename[100];
-    sprintf(filename, "detailed_snapshot snapshot_before_%d", count);
-    VALGRIND_MONITOR_COMMAND(filename);
-#endif
-
     pybind11::exec("print(pybind11_libyt.demo['numpy_array'][0, 0])");
     pybind11::exec("print(pybind11_libyt.demo['numpy_array'].shape)");
     pybind11::exec("print(pybind11_libyt.demo['numpy_array'].flags)");
     pybind11::exec("print(type(pybind11_libyt.demo['numpy_array']))");
+
+
+    return 0;
+}
+
+int PyBind11CallNumPyDel(const char *key) {
+
     pybind11::exec("del pybind11_libyt.demo['numpy_array']"); // this frees array allocated by pybind11
 
-#ifdef USE_VALGRIND
-    sprintf(filename, "detailed_snapshot snapshot_after_%d", count);
-    VALGRIND_MONITOR_COMMAND(filename);
-    count = count + 1;
-#endif
     return 0;
 }
 

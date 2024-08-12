@@ -1,6 +1,7 @@
 #ifndef MYLIB_PYBINDDEMO_H
 #define MYLIB_PYBINDDEMO_H
 
+#include "DataTypes/YTField.h"
 #include "DataTypes/YTGrid.h"
 
 #ifdef USE_PYBIND11
@@ -10,6 +11,7 @@ int PyBind11Import(const char* inline_script);
 int PyBind11Finalize();
 int PyBind11CallTestScript();
 int PyBind11CallNumPyTestScript();
+int PyBind11CallNumPyDel(const char* key);
 int PyBind11SetParameters(struct yt_param_yt* yt_param_ptr);
 int PyBind11SetUserParameterInt(const char* key, int value);
 int PyBind11SetUserParameterDouble(const char* key, double value);
@@ -22,6 +24,8 @@ int PyBind11Run(const char* inline_script, const char* function);
 #ifdef INIT_GLOBAL
 
 struct yt_grid* global_grids_local;
+struct yt_field* global_field_list;
+int global_num_fields;
 
 double* grid_left_edge;
 double* grid_right_edge;

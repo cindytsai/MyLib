@@ -9,7 +9,7 @@ if (USE_NLJSON)
 endif ()
 target_include_directories(MyLib PUBLIC "${PROJECT_SOURCE_DIR}/src")
 target_link_libraries(MyLib
-        PRIVATE MPICore PythonCore Logger PyBind11
+        PUBLIC MPICore PythonCore Logger PyBind11
 )
 
 ###### Properties ######################################################################################################

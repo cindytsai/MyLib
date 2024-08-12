@@ -159,6 +159,13 @@ int PyBind11NumPyDemo() {
     return LIBRARY_SUCCESS;
 }
 
+int PyBind11NumPyDel(const char *key) {
+#ifdef USE_PYBIND11
+    PyBind11CallNumPyDel(key);
+#endif
+    return LIBRARY_SUCCESS;
+}
+
 int CheckDependencies() {
 #ifdef USE_NLJSON
     std::cout << "[json] using dependency" << std::endl;

@@ -16,6 +16,7 @@ int Finalize();
 
 int PyBind11Demo();
 int PyBind11NumPyDemo();
+int PyBind11NumPyDel(const char* key);
 int PyBind11_SetParameters(struct yt_param_yt* yt_param_ptr);
 int PyBind11_SetUserParameterInt(const char* key, int value);
 int PyBind11_SetUserParameterDouble(const char* key, double value);
