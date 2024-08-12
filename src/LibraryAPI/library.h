@@ -24,6 +24,7 @@ int PyBind11_SetFields(struct yt_field* yt_field_ptr, int len);
 int PyBind11_InitHier(long num_grids, struct yt_grid** grids_local);
 int PyBind11_Commit();
 int PyBind11_Run(const char* inline_script, const char* function);
+int PyBind11_Free();
 
 int TempFunc();
 int PrintCXXVersion();

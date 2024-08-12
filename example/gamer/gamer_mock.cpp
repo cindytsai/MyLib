@@ -216,7 +216,9 @@ int main (int argc, char *argv[]){
             std::cout << "[error] run failed" << std::endl;
         }
 
-//        yt_free();
+        if (PyBind11_Free() != LIBRARY_SUCCESS) {
+            std::cout << "[error] free failed" << std::endl;
+        }
 
         std::cout << "[FLAG] step = " << t << std::endl;
     }

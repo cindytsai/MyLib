@@ -19,12 +19,13 @@ int PyBind11SetFields(struct yt_field* yt_field_ptr, int len);
 int PyBind11InitHier(int num_grids, struct yt_grid** grids_local);
 int PyBind11Commit();
 int PyBind11Run(const char* inline_script, const char* function);
+int PyBind11Free();
 #endif  // #ifdef USE_PYBIND11
 
 #ifdef INIT_GLOBAL
 
-struct yt_grid* global_grids_local;
-struct yt_field* global_field_list;
+struct yt_grid* global_grids_local;  // delete when commit is done.
+struct yt_field* global_field_list;  // initialize by gamer_mock.cpp, (Different from how it is done in libyt)
 int global_num_fields;
 
 double* grid_left_edge;

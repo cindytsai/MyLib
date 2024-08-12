@@ -131,6 +131,16 @@ int PyBind11_Run(const char *inline_script, const char *function) {
 #endif
 }
 
+int PyBind11_Free() {
+#ifdef USE_PYBIND11
+    PyBind11Free();
+    return LIBRARY_SUCCESS;
+#else
+    std::cout << "[] no pybind11" << std::endl;
+    return LIBRARY_FAIL;
+#endif
+}
+
 int PrintCXXVersion() {
 //    Logger logger(LOG_DEBUG);
 //    logger.Info("C++ version: %lld\n", __cplusplus);

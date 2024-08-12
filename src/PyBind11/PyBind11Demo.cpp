@@ -333,6 +333,32 @@ int PyBind11Run(const char *inline_script, const char *function) {
     return 0;
 }
 
+int PyBind11Free() {
+    std::cout << "[PyBind11] Free" << std::endl;
+
+    // delete Python objects
+    auto pybind11_libyt = pybind11::module_::import("libyt");
+    pybind11::dict param_yt = pybind11_libyt.attr("param_yt");
+    pybind11::dict param_user = pybind11_libyt.attr("param_user");
+    pybind11::dict hierarchy = pybind11_libyt.attr("hierarchy");
+    pybind11::dict grid_data = pybind11_libyt.attr("grid_data");
+
+    param_yt.clear();
+    param_user.clear();
+    hierarchy.clear();
+    grid_data.clear();
+
+    // delete arrays allocated by the library
+    delete[] grid_left_edge;
+    delete[] grid_right_edge;
+    delete[] grid_dimensions;
+    delete[] grid_parent_id;
+    delete[] grid_levels;
+    delete[] proc_num;
+
+    return 0;
+}
+
 PYBIND11_EMBEDDED_MODULE(pybind11_libyt, m) {
     using namespace pybind11::literals; // to bring in the `_a` literal
     m.attr("demo") = pybind11::dict("spam"_a = pybind11::none());
