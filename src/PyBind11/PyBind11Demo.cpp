@@ -51,9 +51,9 @@ pybind11::array derived_func(long gid, const char* fname) {
 
     // TODO: fixed for double for now, and also fixed to contiguous_in_x = True
     auto array = pybind11::array_t<double>({grid_dim[2], grid_dim[1], grid_dim[0]},
-                                           {sizeof(double) * grid_dim[1] * grid_dim[2],
+                                           {sizeof(double),
                                             sizeof(double) * grid_dim[1],
-                                            sizeof(double)});
+                                            sizeof(double) * grid_dim[1] * grid_dim[2]});
 
     std::cout << "array info: " << std::endl;
     std::cout << "pointer   : " << static_cast<void*>(array.mutable_data()) << std::endl;
