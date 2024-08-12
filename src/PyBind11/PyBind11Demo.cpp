@@ -55,9 +55,6 @@ pybind11::array derived_func(long gid, const char* fname) {
                                             sizeof(double) * grid_dim[1],
                                             sizeof(double) * grid_dim[1] * grid_dim[2]});
 
-    std::cout << "array info: " << std::endl;
-    std::cout << "pointer   : " << static_cast<void*>(array.mutable_data()) << std::endl;
-
     struct yt_data *data_array = new struct yt_data [1];
     data_array[0].data_ptr = static_cast<void*>(array.mutable_data());
     data_array[0].data_dimensions[0] = grid_dim[2];
@@ -65,8 +62,6 @@ pybind11::array derived_func(long gid, const char* fname) {
     data_array[0].data_dimensions[2] = grid_dim[0];
 
     derived_func(1, &gid, fname, data_array);
-
-    std::cout << "[FLAG] data_array[0].data_ptr[0] = " << ((double*) data_array[0].data_ptr)[0] << std::endl;
 
     delete [] data_array;
 
@@ -103,7 +98,7 @@ int PyBind11SetUserParameterInt(const char *key, int value) {
 
     param_user[key] = value;
 
-    pybind11::exec("import pprint; pprint.pprint(libyt.param_user)");
+//    pybind11::exec("import pprint; pprint.pprint(libyt.param_user)");
 
     return 0;
 }
@@ -116,7 +111,7 @@ int PyBind11SetUserParameterDouble(const char *key, double value) {
 
     param_user[key] = value;
 
-    pybind11::exec("import pprint; pprint.pprint(libyt.param_user)");
+//    pybind11::exec("import pprint; pprint.pprint(libyt.param_user)");
 
     return 0;
 }
@@ -161,7 +156,7 @@ int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
                                                    yt_param_ptr->periodicity[1],
                                                    yt_param_ptr->periodicity[2]);
 
-    pybind11::exec("import pprint; pprint.pprint(libyt.param_yt)");
+//    pybind11::exec("import pprint; pprint.pprint(libyt.param_yt)");
 
     return 0;
 }
@@ -193,7 +188,7 @@ int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
         field_list[yt_field_ptr[i].field_name]["contiguous_in_x"] = pybind11::bool_(yt_field_ptr[i].contiguous_in_x);
     }
 
-    pybind11::exec("import pprint; pprint.pprint(libyt.param_yt)");
+//    pybind11::exec("import pprint; pprint.pprint(libyt.param_yt)");
 
     return 0;
 }
@@ -245,9 +240,9 @@ int PyBind11InitHier(int num_grids, struct yt_grid **grids_local) {
             {sizeof(int), sizeof(int)}
     );
 
-    pybind11::exec("print(libyt.hierarchy)");
+//    pybind11::exec("print(libyt.hierarchy)");
 //    pybind11::exec("import numpy as np; print(np.array(libyt.hierarchy['grid_left_edge'], copy=False).flags)");
-    pybind11::exec("import numpy as np; print(type(np.array(libyt.hierarchy['grid_left_edge'], copy=False)))");
+//    pybind11::exec("import numpy as np; print(type(np.array(libyt.hierarchy['grid_left_edge'], copy=False)))");
 //    pybind11::exec("print(np.array(libyt.hierarchy['grid_left_edge']).shape)");
 
     // allocate grids_local to mimic libyt, which is bad
@@ -316,11 +311,11 @@ int PyBind11Commit() {
     }
     delete[] global_grids_local;
 
-    pybind11::exec("print(libyt.grid_data.keys())");
-    pybind11::exec("print(dir(libyt.grid_data[8783]['CCTwos']))");
-    pybind11::exec("print(libyt.grid_data[8783]['CCTwos'].readonly)");
-    pybind11::exec("print(libyt.grid_data[8783]['CCTwos'][0,0,0])");
-    pybind11::exec("print(np.array(libyt.grid_data[8783]['CCTwos'], copy=False).flags)");
+//    pybind11::exec("print(libyt.grid_data.keys())");
+//    pybind11::exec("print(dir(libyt.grid_data[8783]['CCTwos']))");
+//    pybind11::exec("print(libyt.grid_data[8783]['CCTwos'].readonly)");
+//    pybind11::exec("print(libyt.grid_data[8783]['CCTwos'][0,0,0])");
+//    pybind11::exec("print(np.array(libyt.grid_data[8783]['CCTwos'], copy=False).flags)");
 
     return 0;
 }
