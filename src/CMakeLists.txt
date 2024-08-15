@@ -13,6 +13,7 @@ print_option(USE_MPI)
 print_option(USE_READLINE)
 print_option(USE_NLJSON)
 print_option(USE_PYBIND11)
+print_option(SUPPORT_TIMER)
 print_option(BUILD_SHARED_LIBS)
 
 ###### Compile Option ###################################################################################################

@@ -11,12 +11,15 @@
 #endif
 
 #define INIT_GLOBAL
-
 #include "PyBind11Demo.h"
-
 #undef INIT_GLOBAL
 
 int PyBind11Initialize() {
+#ifdef SUPPORT_TIMER
+    timer_control.CreateFile("MyLibTimeProfile.json", 0);
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
+
     pybind11::initialize_interpreter();
     std::cout << "[PyBind11Initialize] Using Python " << std::endl;
     pybind11::exec("import sys; print(sys.version)");
@@ -24,6 +27,9 @@ int PyBind11Initialize() {
 }
 
 int PyBind11Import(const char *inline_script) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     pybind11::exec("import " + std::string(inline_script));
     pybind11::exec("import libyt");
     std::cout << "[PyBind11Initialize] import " << inline_script << " and libyt" << std::endl;
@@ -31,11 +37,17 @@ int PyBind11Import(const char *inline_script) {
 }
 
 int PyBind11Finalize() {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     pybind11::finalize_interpreter();
     return 0;
 }
 
 pybind11::array derived_func(long gid, const char* fname) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] derived_func" << std::endl;
 
     int *grid_dim = &grid_dimensions[gid * 3];
@@ -69,6 +81,9 @@ pybind11::array derived_func(long gid, const char* fname) {
 }
 
 PYBIND11_EMBEDDED_MODULE(libyt, m) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     using namespace pybind11::literals; // to bring in the `_a` literal
     m.attr("demo") = pybind11::dict("spam"_a = pybind11::none());
     m.attr("param_yt") = pybind11::dict();
@@ -81,7 +96,11 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
     m.attr("libyt_info")["SERIAL_MODE"] = pybind11::bool_(true);
     m.attr("libyt_info")["INTERACTIVE_MODE"] = pybind11::bool_(false);
     m.attr("libyt_info")["JUPYTER_KERNEL"] = pybind11::bool_(false);
+#ifdef SUPPORT_TIMER
+    m.attr("libyt_info")["SUPPORT_TIMER"] = pybind11::bool_(true);
+#else
     m.attr("libyt_info")["SUPPORT_TIMER"] = pybind11::bool_(false);
+#endif
 
 
     m.def("add", [](int i, int j) {
@@ -91,6 +110,9 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
 }
 
 int PyBind11SetUserParameterInt(const char *key, int value) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Setting user parameter" << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -104,6 +126,9 @@ int PyBind11SetUserParameterInt(const char *key, int value) {
 }
 
 int PyBind11SetUserParameterDouble(const char *key, double value) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Setting user parameter" << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -117,6 +142,9 @@ int PyBind11SetUserParameterDouble(const char *key, double value) {
 }
 
 int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Setting parameter" << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -162,6 +190,9 @@ int PyBind11SetParameters(struct yt_param_yt *yt_param_ptr) {
 }
 
 int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Setting fields " << std::endl;
 
     global_field_list = yt_field_ptr;
@@ -194,6 +225,9 @@ int PyBind11SetFields(struct yt_field *yt_field_ptr, int len) {
 }
 
 int PyBind11InitHier(int num_grids, struct yt_grid **grids_local) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Setting hierarchy " << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -257,6 +291,9 @@ int PyBind11InitHier(int num_grids, struct yt_grid **grids_local) {
 }
 
 int PyBind11Commit() {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Commit" << std::endl;
 
     auto pybind11_libyt = pybind11::module_::import("libyt");
@@ -320,6 +357,9 @@ int PyBind11Commit() {
 }
 
 int PyBind11Run(const char *inline_script, const char *function) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Running " << function << std::endl;
 
     pybind11::exec(std::string(inline_script) + "." + std::string(function) + "()");
@@ -328,6 +368,9 @@ int PyBind11Run(const char *inline_script, const char *function) {
 }
 
 int PyBind11Free() {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
     std::cout << "[PyBind11] Free" << std::endl;
 
     // delete Python objects

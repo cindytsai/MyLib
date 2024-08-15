@@ -35,6 +35,13 @@ long* grid_parent_id;
 int* grid_levels;
 int* proc_num;
 
+#ifdef SUPPORT_TIMER
+#include "Utilities/Timer.h"
+#include "Utilities/TimerControl.h"
+
+TimerControl timer_control;
+#endif
+
 #endif
 
 #ifdef USE_GLOBAL

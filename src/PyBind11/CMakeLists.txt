@@ -14,6 +14,11 @@ if (USE_PYBIND11)
     configure_file(test_script.py ${PROJECT_BINARY_DIR}/example/cpp_example/test_script.py COPYONLY)
 endif ()
 
+if (SUPPORT_TIMER)
+    target_compile_definitions(PyBind11 PUBLIC SUPPORT_TIMER)
+    target_link_libraries(PyBind11 PUBLIC Timer)
+endif ()
+
 if (USE_VALGRIND)
     find_program(VALGRIND_EXECUTABLE valgrind)
     target_compile_definitions(PyBind11 PUBLIC USE_VALGRIND)
