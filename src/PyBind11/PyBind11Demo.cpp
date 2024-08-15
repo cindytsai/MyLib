@@ -285,16 +285,15 @@ int PyBind11Commit() {
 
                 pybind11::dict field_data;
 
-                if (!hasattr(grid_data, pybind11::int_(g))) {
+                if (!grid_data.contains(pybind11::int_(g))) {
                     field_data = pybind11::dict();
                     grid_data[pybind11::int_(g)] = field_data;
                 } else {
                     field_data = grid_data[pybind11::int_(g)];
                 }
 
-                // TODO: field name set is hard-coded
                 // TODO: should also work on checking contiguous_in_x and wrapping data mechanisms
-                field_data["CCTwos"] = pybind11::memoryview::from_buffer(
+                field_data[global_field_list[v].field_name] = pybind11::memoryview::from_buffer(
                         (double*) global_grids_local[g].field_data[v].data_ptr,
                         {grid_dimensions[g * 3 + 0], grid_dimensions[g * 3 + 1], grid_dimensions[g * 3 + 2]},
                         {sizeof(double), sizeof(double) * grid_dimensions[g * 3 + 0],
