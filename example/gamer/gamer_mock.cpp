@@ -7,9 +7,11 @@ Consider only cell-centered field and ignore particle data and derived data.
 #include <iostream>
 #include <fstream>
 #include <cstdio>
-#include <unistd.h>
 #include <cstdlib>
 #include <vector>
+#ifdef USE_VALGRIND
+#include <valgrind/valgrind.h>
+#endif
 
 #define GRID_SIZE 16
 
@@ -42,11 +44,15 @@ int main (int argc, char *argv[]){
     PrintCXXVersion();
 
     /* Parameters for testing */
-    int iter = 1;
+    int iter = 100;
     int  grid_size = GRID_SIZE;
     int  num_grids = 8784; // cannot alter arbitrary.
     int  num_grids_local, start_id, end_id;
     std::string inline_script = std::string("inline_script");
+
+#ifdef USE_VALGRIND
+    char valgrind_cmd[1000];
+#endif
 
     start_id = 0;
     end_id = num_grids;
@@ -212,13 +218,23 @@ int main (int argc, char *argv[]){
             std::cout << "[error] commit failed" << std::endl;
         }
 
-        if (PyBind11_Run(inline_script.c_str(), "test_function") != LIBRARY_SUCCESS) {
-            std::cout << "[error] run failed" << std::endl;
-        }
+//        if (PyBind11_Run(inline_script.c_str(), "test_function") != LIBRARY_SUCCESS) {
+//            std::cout << "[error] run failed" << std::endl;
+//        }
+
+#ifdef USE_VALGRIND
+        snprintf(valgrind_cmd, 1000, "detailed_snapshot BeforeFree%d\0", t);
+        VALGRIND_MONITOR_COMMAND(valgrind_cmd);
+#endif
 
         if (PyBind11_Free() != LIBRARY_SUCCESS) {
             std::cout << "[error] free failed" << std::endl;
         }
+
+#ifdef USE_VALGRIND
+        snprintf(valgrind_cmd, 1000, "detailed_snapshot AfterFree%d\0", t);
+        VALGRIND_MONITOR_COMMAND(valgrind_cmd);
+#endif
 
         std::cout << "[FLAG] step = " << t << std::endl;
     }
@@ -246,7 +262,6 @@ int main (int argc, char *argv[]){
     if ( Finalize() != LIBRARY_SUCCESS ) {
         printf("yt_finalize failed!\n");
     }
-
 
     return 0;
 }
