@@ -92,7 +92,7 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
     m.attr("grid_data") = pybind11::dict();
     m.attr("libyt_info") = pybind11::dict();
 
-    m.attr("libyt_info")["version"] = "0.0.1";
+    m.attr("libyt_info")["version"] = pybind11::make_tuple(0, 1, 0);
     m.attr("libyt_info")["SERIAL_MODE"] = pybind11::bool_(true);
     m.attr("libyt_info")["INTERACTIVE_MODE"] = pybind11::bool_(false);
     m.attr("libyt_info")["JUPYTER_KERNEL"] = pybind11::bool_(false);
