@@ -43,7 +43,7 @@ void InitializeDuckDB() {
     }
     std::cout << "[DuckDB] data_ptr[0] = " << data_ptr[0] << std::endl;
     std::cout << "[DuckDB] addr[0] = " << reinterpret_cast<double*>(addr)[0] << std::endl;
-    
+
     duckdb_prepared_statement stmt;
     duckdb_result result;
     if (duckdb_prepare(con, "INSERT INTO data_hub VALUES ($1, $2, $3)", &stmt) == DuckDBError) {
@@ -55,11 +55,19 @@ void InitializeDuckDB() {
 
     duckdb_execute_prepared(stmt, &result);
     duckdb_destroy_result(&result);
+
+    duckdb_bind_int32(stmt, 1, 2);
+    duckdb_bind_varchar_length(stmt, 2, "test2", 4);
+    duckdb_bind_uint64(stmt, 3, 0);
+
+    duckdb_execute_prepared(stmt, &result);
+    duckdb_destroy_result(&result);
     duckdb_destroy_prepare(&stmt);
+
     std::cout << "[DuckDB] Data inserted into data_hub" << std::endl;
 
     // Query test data
-    query = "SELECT * FROM data_hub WHERE grid_id = 1;";
+    query = "SELECT * FROM data_hub;";
     db_state = duckdb_query(con, query.c_str(), &result);
     if (db_state == DuckDBError) {
         std::cout << "[DuckDB] Query failed" << std::endl;
