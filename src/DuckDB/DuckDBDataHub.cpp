@@ -20,8 +20,92 @@ void InitializeDuckDB() {
     if (duckdb_connect(db, &con) == DuckDBError) {
         std::cout << "[DuckDB] Failed to connect to database" << std::endl;
     }
-
     std::cout << "[DuckDB] In-memory database initialized and connected" << std::endl;
+
+    // Create DataHub table
+    void *p;
+    if (sizeof(p) > 8) {
+        std::cout << "[DuckDB] Table cannot store pointer, change to larger data type" << std::endl;
+    }
+    std::string query = "CREATE TABLE data_hub (grid_id INTEGER PRIMARY KEY, name VARCHAR(20), data_ptr BIGINT);";
+    duckdb_state db_state = duckdb_query(con, query.c_str(), nullptr);
+    if (db_state == DuckDBError) {
+        std::cout << "[DuckDB] Cannot create table data_hub" << std::endl;
+    }
+
+    std::cout << "[DuckDB] data_hub(INTEGER grid_id, VARCHAR(20) name, BIGINT data_ptr) table created" << std::endl;
+
+    // Insert test data
+    double *data_ptr = new double[10]; // TODO: not freed, testing purpose only
+    uintptr_t addr = reinterpret_cast<uintptr_t>(data_ptr);
+    for (int i = 0; i < 10; i++) {
+        data_ptr[i] = i * 100 + 100;
+    }
+    std::cout << "[DuckDB] data_ptr[0] = " << data_ptr[0] << std::endl;
+    std::cout << "[DuckDB] addr[0] = " << reinterpret_cast<double*>(addr)[0] << std::endl;
+    
+    duckdb_prepared_statement stmt;
+    duckdb_result result;
+    if (duckdb_prepare(con, "INSERT INTO data_hub VALUES ($1, $2, $3)", &stmt) == DuckDBError) {
+        std::cout << "[DuckDB] Unable to prepare statement" << std::endl;
+    }
+    duckdb_bind_int32(stmt, 1, 1);
+    duckdb_bind_varchar_length(stmt, 2, "test", 4);
+    duckdb_bind_uint64(stmt, 3, addr);
+
+    duckdb_execute_prepared(stmt, &result);
+    duckdb_destroy_result(&result);
+    duckdb_destroy_prepare(&stmt);
+    std::cout << "[DuckDB] Data inserted into data_hub" << std::endl;
+
+    // Query test data
+    query = "SELECT * FROM data_hub WHERE grid_id = 1;";
+    db_state = duckdb_query(con, query.c_str(), &result);
+    if (db_state == DuckDBError) {
+        std::cout << "[DuckDB] Query failed" << std::endl;
+    }
+
+    while (true) {
+        // Loop through results
+        duckdb_data_chunk data_chunk = duckdb_fetch_chunk(result);
+        if (!data_chunk) {
+            break;
+        }
+
+        // Get number of rows from the data chunk
+        idx_t row_count = duckdb_data_chunk_get_size(data_chunk);
+        std::cout << "Row count: " << row_count << std::endl;
+
+        // Get column
+        duckdb_vector col1 = duckdb_data_chunk_get_vector(data_chunk, 0);
+        int32_t *col1_data = (int32_t *)duckdb_vector_get_data(col1);
+        duckdb_type col1_type = duckdb_column_type(&result, 0);
+
+        duckdb_vector col2 = duckdb_data_chunk_get_vector(data_chunk, 1);
+        duckdb_string_t *col2_data = (duckdb_string_t *)duckdb_vector_get_data(col2);
+        duckdb_type col2_type = duckdb_column_type(&result, 1);
+
+        duckdb_vector col3 = duckdb_data_chunk_get_vector(data_chunk, 2);
+        uint64_t *col3_data = (uint64_t *)duckdb_vector_get_data(col3);
+        duckdb_type col3_type = duckdb_column_type(&result, 2);
+
+        std::cout << "Column type: " << col1_type << ", " << col2_type << ", " << col3_type << std::endl;
+
+        // Print value
+        std::cout << col1_data[0];
+        if (duckdb_string_is_inlined(col2_data[0])) {
+            std::cout << " " << col2_data[0].value.inlined.inlined << "(is_inline)";
+        } else {
+            std::cout << " " << col2_data[0].value.pointer.ptr << "(is_pointer)";
+        }
+        std::cout << " " << col3_data[0];
+        std::cout << "( value data_ptr[0] = " << reinterpret_cast<double*>(col3_data[0])[0] << " )" << std::endl;
+
+        // Destroy data chunk
+        duckdb_destroy_data_chunk(&data_chunk);
+    }
+
+    duckdb_destroy_result(&result);
 }
 
 void DuckDBTestCreateData() {
