@@ -78,6 +78,7 @@ void DuckDBTestGetData() {
 
         // Print column type
         std::cout << col1_type << ", " << col2_type << std::endl;
+        std::cout << duckdb_column_name(&db_result, 0) << ", " << duckdb_column_name(&db_result, 1) << std::endl;
 
         // Print data chunk row by row
         for (idx_t i = 0; i < row_count; i++) {
