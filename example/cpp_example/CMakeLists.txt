@@ -13,6 +13,7 @@ target_include_directories(example PUBLIC ../../src/LibraryAPI)
 target_include_directories(amr_dummy PUBLIC ../../src/LibraryAPI)
 target_link_libraries(example PUBLIC MyLib)
 target_link_libraries(amr_dummy PUBLIC MyLib)
+configure_file(inline_script.py ${CMAKE_CURRENT_BINARY_DIR}/inline_script.py COPYONLY)
 
 if (USE_MPI)
     target_link_libraries(example PUBLIC MPI::MPI_CXX)

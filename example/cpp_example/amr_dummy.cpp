@@ -31,7 +31,7 @@ int main (int argc, char *argv[]){
 #endif
 
     /* Parameters for testing */
-    long iter = 10;
+    long iter = 3;
     int  grid_size = 8;
     int  num_grids = 2000000; // cannot alter arbitrary.
     int  num_grids_local = num_grids / nrank;
@@ -40,6 +40,10 @@ int main (int argc, char *argv[]){
     /* Generate data set for testing */
     if ( Initialize( argc, argv ) != LIBRARY_SUCCESS ) {
         printf("Initialize failed!\n");
+    }
+
+    if ( Import("inline_script") != LIBRARY_SUCCESS ) {
+        printf("Import failed!\n");
     }
 
     struct yt_param_yt param_yt;
@@ -94,6 +98,9 @@ int main (int argc, char *argv[]){
 
     // iteration starts
     for(int t=0; t<iter; t++) {
+        /* DuckDB test */
+        DuckDB_TestCreateData();
+        DuckDB_TestGetData();
 
         /* libyt API yt_set_Parameters */
         PyBind11_SetParameters( &param_yt );
@@ -146,6 +153,10 @@ int main (int argc, char *argv[]){
         if (PyBind11_Commit() != LIBRARY_SUCCESS) {
             std::cout << "[error] commit failed" << std::endl;
         }
+
+//        if (PyBind11_Run("inline_script", "func") != LIBRARY_SUCCESS) {
+//            std::cout << "[error] run failed" << std::endl;
+//        }
 
 #ifdef USE_VALGRIND
         snprintf(valgrind_cmd, 1000, "detailed_snapshot BeforeFree%d\0", t);

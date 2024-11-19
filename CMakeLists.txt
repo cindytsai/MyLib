@@ -10,6 +10,8 @@ option(USE_MPI           "Use MPI"                            OFF)
 option(USE_READLINE      "Use readline"                       OFF)
 option(USE_NLJSON        "Use nlohmann_json"                  OFF)
 option(USE_PYBIND11      "Use pybind11"                       OFF)
+option(USE_DUCKDB        "Use DuckDB"                         OFF)
+option(SUPPORT_TIMER     "Support time profile"               OFF)
 option(BUILD_SHARED_LIBS "Building using shared libraries"    ON )  # MyLib is built into shared lib for now.
 
 # Set path

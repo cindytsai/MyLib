@@ -32,6 +32,9 @@ int UseDataType(const struct People* people);
 int CheckDependencies();
 int CheckPython();
 
+int DuckDB_TestCreateData();
+int DuckDB_TestGetData();
+
 #ifdef __cplusplus
 };
 #endif

@@ -4,6 +4,7 @@
 #include "./Utilities/Logger.h"
 #include "./Macro/LibraryDefinition.h"
 #include "./PyBind11/PyBind11Demo.h"
+#include "./DuckDB/DuckDBDataHub.h"
 #include "library.h"
 #ifdef USE_NLJSON
 #include <nlohmann/json.hpp>
@@ -35,6 +36,11 @@ int Initialize(int argc, char *argv[]) {
 #ifdef USE_PYBIND11
     PyBind11Initialize();
 #endif
+#ifdef USE_DUCKDB
+    InitializeDuckDB();
+    PrintDuckDBVersion();
+#endif
+
     return LIBRARY_SUCCESS;
 }
 
@@ -57,6 +63,9 @@ int Finalize() {
 #endif
 #ifdef USE_PYBIND11
     PyBind11Finalize();
+#endif
+#ifdef USE_DUCKDB
+    FinalizeDuckDB();
 #endif
 
     return LIBRARY_SUCCESS;
@@ -200,5 +209,25 @@ int CheckDependencies() {
 #else
     std::cout << "[] no pybind11" << std::endl;
 #endif
+    return 0;
+}
+
+int DuckDB_TestCreateData() {
+#ifdef USE_DUCKDB
+    DuckDBTestCreateData();
+#else
+    std::cout << "[] no duckdb" << std::endl;
+#endif
+
+    return 0;
+}
+
+int DuckDB_TestGetData() {
+#ifdef USE_DUCKDB
+    DuckDBTestGetData();
+#else
+    std::cout << "[] no duckdb" << std::endl;
+#endif
+
     return 0;
 }
