@@ -6,7 +6,11 @@
 #include "DataTypes/YTGrid.h"
 #include "DataTypes/YTParameters.h"
 #include "Macro/LibraryDefinition.h"
-
+struct simu_data {
+    long gid;
+    const char* name;
+    void* data_ptr;
+};
 #ifdef __cplusplus
 extern "C" {
 #endif

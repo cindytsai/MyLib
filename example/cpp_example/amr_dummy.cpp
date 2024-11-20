@@ -98,10 +98,6 @@ int main (int argc, char *argv[]){
 
     // iteration starts
     for(int t=0; t<iter; t++) {
-        /* DuckDB test */
-        DuckDB_TestCreateData();
-        DuckDB_TestGetData();
-
         /* libyt API yt_set_Parameters */
         PyBind11_SetParameters( &param_yt );
 

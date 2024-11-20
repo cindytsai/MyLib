@@ -6,6 +6,8 @@
 
 #ifdef USE_PYBIND11
 
+#include "../LibraryAPI/library.h"
+
 int PyBind11Initialize();
 int PyBind11Import(const char* inline_script);
 int PyBind11Finalize();
@@ -27,6 +29,7 @@ int PyBind11Free();
 struct yt_grid* global_grids_local;  // delete when commit is done.
 struct yt_field* global_field_list;  // initialize by gamer_mock.cpp, (Different from how it is done in libyt)
 int global_num_fields;
+std::vector<simu_data> simu_data_list;
 
 double* grid_left_edge;
 double* grid_right_edge;
