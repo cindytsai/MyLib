@@ -4,7 +4,9 @@
 #include "./Utilities/Logger.h"
 #include "./Macro/LibraryDefinition.h"
 #include "./PyBind11/PyBind11Demo.h"
+#ifdef USE_DUCKDB
 #include "./DuckDB/DuckDBDataHub.h"
+#endif
 #include "library.h"
 #ifdef USE_NLJSON
 #include <nlohmann/json.hpp>

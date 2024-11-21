@@ -13,9 +13,7 @@
 #include <valgrind/valgrind.h>
 #endif
 #ifdef USE_DUCKDB
-
 #include "DuckDB/DuckDBDataHub.h"
-
 #endif
 
 #define INIT_GLOBAL
@@ -55,6 +53,7 @@ int PyBind11Finalize() {
     return 0;
 }
 
+#ifdef USE_DUCKDB
 pybind11::dict data_hub(long gid, const char* name) {
 #ifdef SUPPORT_TIMER
     SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
@@ -70,6 +69,7 @@ pybind11::dict data_hub(long gid, const char* name) {
 
     return output;
 }
+#endif
 
 pybind11::array derived_func(long gid, const char* fname) {
 #ifdef SUPPORT_TIMER
@@ -166,9 +166,11 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
 #endif
 
     m.def("add", [](int i, int j) { return i + j; });
-    m.def("data_hub", &data_hub, pybind11::return_value_policy::take_ownership);
     m.def("derived_func", &derived_func, pybind11::return_value_policy::take_ownership);
     m.def("get_remote_field", &get_remote_field, pybind11::return_value_policy::take_ownership);
+#ifdef USE_DUCKDB
+    m.def("data_hub", &data_hub, pybind11::return_value_policy::take_ownership);
+#endif
 }
 
 int PyBind11SetUserParameterInt(const char* key, int value) {
@@ -356,8 +358,8 @@ int PyBind11Commit() {
         // bind buffer field by field
         for (int v = 0; v < num_fields; v++) {
             if (global_grids_local[g].field_data[v].data_ptr != nullptr) {
+#ifndef USE_DUCKDB
                 pybind11::dict field_data;
-
                 if (!grid_data.contains(pybind11::int_(g))) {
                     field_data = pybind11::dict();
                     grid_data[pybind11::int_(g)] = field_data;
@@ -365,7 +367,6 @@ int PyBind11Commit() {
                     field_data = grid_data[pybind11::int_(g)];
                 }
 
-#ifndef USE_DUCKDB
                 // TODO: should also work on checking contiguous_in_x and wrapping data mechanisms
                 field_data[global_field_list[v].field_name] = pybind11::memoryview::from_buffer(
                     (double*)global_grids_local[g].field_data[v].data_ptr,
@@ -380,13 +381,6 @@ int PyBind11Commit() {
                                          grid_dimensions[g * 3 + 2]};
                 PyObject* array = (PyObject*)PyArray_SimpleNewFromData(3, grid_dims, NPY_DOUBLE,
                                                                        global_grids_local[g].field_data[v].data_ptr);
-//                pybind11::memoryview array = pybind11::memoryview::from_buffer(
-//                    (double*)global_grids_local[g].field_data[v].data_ptr,
-//                    {grid_dimensions[g * 3 + 0], grid_dimensions[g * 3 + 1], grid_dimensions[g * 3 + 2]},
-//                    {sizeof(double), sizeof(double) * grid_dimensions[g * 3 + 0],
-//                     sizeof(double) * grid_dimensions[g * 3 + 0] * grid_dimensions[g * 3 + 1]},
-//                    true  // read-only
-//                );
                 struct simu_data simu_data = {
                     .gid = g, .name = global_field_list[v].field_name, .data_ptr = reinterpret_cast<void*>(array)};
                 simu_data_list.emplace_back(simu_data);
@@ -394,7 +388,9 @@ int PyBind11Commit() {
             }
         }
     }
+#ifdef USE_DUCKDB
     AppendDataToDuckDB(simu_data_list);
+#endif
 
     // delete global_grids_local
     for (long g = 0; g < num_grids; g++) {
@@ -435,11 +431,13 @@ int PyBind11Free() {
     pybind11::dict hierarchy = pybind11_libyt.attr("hierarchy");
     pybind11::dict grid_data = pybind11_libyt.attr("grid_data");
 
+#ifdef USE_DUCKDB
     for (const auto& item : simu_data_list) {
         Py_DECREF((PyObject*)item.data_ptr);
     }
     simu_data_list.clear();
     ClearDataInDataHub();
+#endif
 
     param_yt.clear();
     param_user.clear();
