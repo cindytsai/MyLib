@@ -29,7 +29,7 @@ void InitializeDuckDB() {
     if (sizeof(p) > 8) {
         std::cout << "[DuckDB] Table cannot store pointer, change to larger data type" << std::endl;
     }
-    std::string query = "CREATE TABLE data_hub (grid_id INTEGER PRIMARY KEY, name VARCHAR(20), data_ptr BIGINT);";
+    std::string query = "CREATE TABLE data_hub (grid_id INTEGER, name VARCHAR(20), data_ptr BIGINT);";
     duckdb_state db_state = duckdb_query(con, query.c_str(), nullptr);
     if (db_state == DuckDBError) {
         std::cout << "[DuckDB] Cannot create table data_hub" << std::endl;
@@ -210,9 +210,9 @@ void AppendDataToDuckDB(const std::vector<simu_data> &wrapped_pointers) {
     }
 
     for (const auto &simu_data : wrapped_pointers) {
-        duckdb_append_int32(appender, (int) simu_data.gid);
+        duckdb_append_int32(appender, (int32_t) simu_data.gid);
         duckdb_append_varchar(appender, simu_data.name);
-        duckdb_append_uint64(appender, reinterpret_cast<uintptr_t>(simu_data.data_ptr));
+        duckdb_append_uint64(appender, (uint64_t) reinterpret_cast<uintptr_t>(simu_data.data_ptr));
         duckdb_appender_end_row(appender);
     }
 
@@ -220,8 +220,45 @@ void AppendDataToDuckDB(const std::vector<simu_data> &wrapped_pointers) {
     duckdb_appender_destroy(&appender);
 }
 
-void QueryDataFromDuckDB() {
-    
+void QueryDataFromDuckDB(std::vector<simu_data>& query_data) {
+    std::cout << "[DuckDB] Querying data ..." << std::endl;
+
+    duckdb_prepared_statement stmt;
+    duckdb_result result;
+
+    if (duckdb_prepare(con, "SELECT * FROM data_hub WHERE grid_id = ? AND name = ?", &stmt) == DuckDBError) {
+        std::cout << "[DuckDB] Unable to prepare statement" << std::endl;
+        std::cout << duckdb_prepare_error(stmt) << std::endl;
+    }
+
+    for (auto &simu_data : query_data) {
+        std::cout << "[DuckDB] Querying data for grid_id = " << simu_data.gid << ", name = " << simu_data.name << std::endl;
+
+        // prepare statement
+        duckdb_bind_int32(stmt, 1, (int) simu_data.gid);
+        duckdb_bind_varchar(stmt, 2, simu_data.name);
+
+        // execute
+        duckdb_execute_prepared(stmt, &result);
+
+        // fetch result and store in simu_data.data_ptr
+        duckdb_data_chunk data_chunk = duckdb_fetch_chunk(result);
+        idx_t row_count = duckdb_data_chunk_get_size(data_chunk);
+        std::cout << "[DuckDB] Row count = " << row_count << std::endl;
+        if (row_count != 1) {
+            std::cout << "[DuckDB] (Query result size is not 1)" << std::endl;
+        }
+
+        duckdb_vector col3 = duckdb_data_chunk_get_vector(data_chunk, 2);
+        uint64_t *col3_data = (uint64_t *) duckdb_vector_get_data(col3);
+        simu_data.data_ptr = reinterpret_cast<void*>(col3_data[0]);
+
+        // free
+        duckdb_destroy_data_chunk(&data_chunk);
+        duckdb_destroy_result(&result);
+    }
+
+    duckdb_destroy_prepare(&stmt);
 }
 
 void ClearDataInDataHub() {

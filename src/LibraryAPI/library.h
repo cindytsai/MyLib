@@ -7,9 +7,9 @@
 #include "DataTypes/YTParameters.h"
 #include "Macro/LibraryDefinition.h"
 struct simu_data {
-    long gid;
-    const char* name;
-    void* data_ptr;
+    long gid;          // grid_id
+    const char* name;  // name
+    void* data_ptr;    // data_ptr
 };
 #ifdef __cplusplus
 extern "C" {

@@ -14,7 +14,7 @@ void PrintDuckDBVersion();
 void InitializeDuckDB();
 void FinalizeDuckDB();
 void AppendDataToDuckDB(const std::vector<simu_data>& wrapped_pointers);
-void QueryDataFromDuckDB();
+void QueryDataFromDuckDB(std::vector<simu_data>& query_data);
 void DuckDBTestCreateData();
 void ClearDataInDataHub();
 void DuckDBTestGetData();

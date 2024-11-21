@@ -55,6 +55,20 @@ int PyBind11Finalize() {
     return 0;
 }
 
+pybind11::object data_hub(long gid, const char* name) {
+#ifdef SUPPORT_TIMER
+    SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
+#endif
+    std::cout << "[PyBind11] libyt.data_hub" << std::endl;
+
+    std::vector<simu_data> data_list;
+    data_list.emplace_back(simu_data{gid, name, nullptr});
+
+    QueryDataFromDuckDB(data_list);
+
+    return (PyObject*)data_list[0].data_ptr;
+}
+
 pybind11::array derived_func(long gid, const char* fname) {
 #ifdef SUPPORT_TIMER
     SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
@@ -150,6 +164,7 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
 #endif
 
     m.def("add", [](int i, int j) { return i + j; });
+    m.def("data_hub", &data_hub, pybind11::return_value_policy::reference);
     m.def("derived_func", &derived_func, pybind11::return_value_policy::take_ownership);
     m.def("get_remote_field", &get_remote_field, pybind11::return_value_policy::take_ownership);
 }
@@ -411,7 +426,7 @@ int PyBind11Free() {
     pybind11::dict hierarchy = pybind11_libyt.attr("hierarchy");
     pybind11::dict grid_data = pybind11_libyt.attr("grid_data");
 
-    for (const auto &item : simu_data_list) {
+    for (const auto& item : simu_data_list) {
         Py_DECREF((PyObject*)item.data_ptr);
     }
     simu_data_list.clear();
