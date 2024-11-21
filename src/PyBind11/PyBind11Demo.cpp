@@ -55,7 +55,7 @@ int PyBind11Finalize() {
     return 0;
 }
 
-pybind11::object data_hub(long gid, const char* name) {
+pybind11::dict data_hub(long gid, const char* name) {
 #ifdef SUPPORT_TIMER
     SET_TIMER(__PRETTY_FUNCTION__, &timer_control);
 #endif
@@ -65,8 +65,10 @@ pybind11::object data_hub(long gid, const char* name) {
     data_list.emplace_back(simu_data{gid, name, nullptr});
 
     QueryDataFromDuckDB(data_list);
+    pybind11::dict output;
+    output[pybind11::make_tuple(gid, name)] = (PyObject*) data_list[0].data_ptr;
 
-    return (PyObject*)data_list[0].data_ptr;
+    return output;
 }
 
 pybind11::array derived_func(long gid, const char* fname) {
@@ -164,7 +166,7 @@ PYBIND11_EMBEDDED_MODULE(libyt, m) {
 #endif
 
     m.def("add", [](int i, int j) { return i + j; });
-    m.def("data_hub", &data_hub, pybind11::return_value_policy::reference);
+    m.def("data_hub", &data_hub, pybind11::return_value_policy::take_ownership);
     m.def("derived_func", &derived_func, pybind11::return_value_policy::take_ownership);
     m.def("get_remote_field", &get_remote_field, pybind11::return_value_policy::take_ownership);
 }
@@ -378,6 +380,13 @@ int PyBind11Commit() {
                                          grid_dimensions[g * 3 + 2]};
                 PyObject* array = (PyObject*)PyArray_SimpleNewFromData(3, grid_dims, NPY_DOUBLE,
                                                                        global_grids_local[g].field_data[v].data_ptr);
+//                pybind11::memoryview array = pybind11::memoryview::from_buffer(
+//                    (double*)global_grids_local[g].field_data[v].data_ptr,
+//                    {grid_dimensions[g * 3 + 0], grid_dimensions[g * 3 + 1], grid_dimensions[g * 3 + 2]},
+//                    {sizeof(double), sizeof(double) * grid_dimensions[g * 3 + 0],
+//                     sizeof(double) * grid_dimensions[g * 3 + 0] * grid_dimensions[g * 3 + 1]},
+//                    true  // read-only
+//                );
                 struct simu_data simu_data = {
                     .gid = g, .name = global_field_list[v].field_name, .data_ptr = reinterpret_cast<void*>(array)};
                 simu_data_list.emplace_back(simu_data);
