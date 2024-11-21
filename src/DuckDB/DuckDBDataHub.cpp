@@ -1,10 +1,11 @@
 #ifdef USE_DUCKDB
 
 #include "DuckDBDataHub.h"
+
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
-
 
 void PrintDuckDBVersion() {
     std::cout << "[DuckDB] DuckDB version: " << duckdb_library_version() << std::endl;
@@ -29,13 +30,13 @@ void InitializeDuckDB() {
     if (sizeof(p) > 8) {
         std::cout << "[DuckDB] Table cannot store pointer, change to larger data type" << std::endl;
     }
-    std::string query = "CREATE TABLE data_hub (grid_id INTEGER, name VARCHAR(20), data_ptr BIGINT);";
+    std::string query = "CREATE TABLE data_hub (grid_id INTEGER, name INTEGER, data_ptr BIGINT);";
     duckdb_state db_state = duckdb_query(con, query.c_str(), nullptr);
     if (db_state == DuckDBError) {
         std::cout << "[DuckDB] Cannot create table data_hub" << std::endl;
     }
 
-    std::cout << "[DuckDB] data_hub(INTEGER grid_id, VARCHAR(20) name, BIGINT data_ptr) table created" << std::endl;
+    std::cout << "[DuckDB] data_hub(INTEGER grid_id, INTEGER name, BIGINT data_ptr) table created" << std::endl;
 
     // Insert test data
 //    double *data_ptr = new double[10]; // TODO: not freed, testing purpose only
@@ -209,9 +210,13 @@ void AppendDataToDuckDB(const std::vector<simu_data> &wrapped_pointers) {
         std::cout << "[DuckDB] Unable to create appender" << std::endl;
     }
 
+    std::map<std::string, int> field_name_to_num;
+    field_name_to_num["DerivedOnes"] = 0;
+    field_name_to_num["CCTwos"] = 1;
+
     for (const auto &simu_data : wrapped_pointers) {
         duckdb_append_int32(appender, (int32_t) simu_data.gid);
-        duckdb_append_varchar(appender, simu_data.name);
+        duckdb_append_int32(appender, (int32_t) field_name_to_num[simu_data.name]);
         duckdb_append_uint64(appender, (uint64_t) reinterpret_cast<uintptr_t>(simu_data.data_ptr));
         duckdb_appender_end_row(appender);
     }
@@ -226,6 +231,10 @@ void QueryDataFromDuckDB(std::vector<simu_data>& query_data) {
     duckdb_prepared_statement stmt;
     duckdb_result result;
 
+    std::map<std::string, int> field_name_to_num;
+    field_name_to_num["DerivedOnes"] = 0;
+    field_name_to_num["CCTwos"] = 1;
+
     if (duckdb_prepare(con, "SELECT * FROM data_hub WHERE grid_id = ? AND name = ?", &stmt) == DuckDBError) {
         std::cout << "[DuckDB] Unable to prepare statement" << std::endl;
         std::cout << duckdb_prepare_error(stmt) << std::endl;
@@ -236,7 +245,7 @@ void QueryDataFromDuckDB(std::vector<simu_data>& query_data) {
 
         // prepare statement
         duckdb_bind_int32(stmt, 1, (int) simu_data.gid);
-        duckdb_bind_varchar(stmt, 2, simu_data.name);
+        duckdb_bind_int32(stmt, 2, field_name_to_num[simu_data.name]);
 
         // execute
         duckdb_execute_prepared(stmt, &result);
